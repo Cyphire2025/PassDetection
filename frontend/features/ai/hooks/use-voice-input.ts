@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { requireRunningAudio } from "../audio-readiness";
 
 type VoiceStatus = "idle" | "requesting" | "listening" | "error";
 type Capture = {
@@ -18,6 +19,7 @@ function microphoneError(error: unknown): string {
   }
   if (name === "NotFoundError") return "No microphone found. Connect one, then try again.";
   if (name === "NotReadableError") return "Your microphone is busy. Close other apps using it, then try again.";
+  if (error instanceof Error && error.message.startsWith("Browser audio")) return error.message;
   return "The microphone couldn’t start. Please try again.";
 }
 
@@ -70,7 +72,7 @@ export function useVoiceInput() {
       const resume = context.resume();
       void resume.catch(() => undefined);
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        audio: { channelCount: { ideal: 1 }, echoCancellation: true, noiseSuppression: true, autoGainControl: true },
         video: false,
       });
       if (requestRef.current !== request) {
@@ -78,7 +80,7 @@ export function useVoiceInput() {
         return;
       }
       capture.stream = stream;
-      await resume;
+      await requireRunningAudio(context);
       if (requestRef.current !== request) return;
 
       const analyser = context.createAnalyser();
@@ -89,14 +91,19 @@ export function useVoiceInput() {
       capture.source = source;
       capture.analyser = analyser;
       const samples = new Float32Array(analyser.fftSize);
-      const sample = () => {
+      let sampledAt: number | null = null;
+      const sample = (now = performance.now()) => {
         if (captureRef.current !== capture) return;
+        const elapsed = sampledAt === null ? 1 / 60 : Math.max(0, (now - sampledAt) / 1000);
+        sampledAt = now;
         analyser.getFloatTimeDomainData(samples);
         let energy = 0;
         for (const value of samples) energy += value * value;
         const rms = Math.sqrt(energy / samples.length);
         const target = Math.min(1, Math.max(0, (rms - 0.008) * 8));
-        levelRef.current += (target - levelRef.current) * (target > levelRef.current ? 0.4 : 0.1);
+        // Preserve the 60fps envelope without stretching silence on slow GPUs.
+        const retention = target > levelRef.current ? .6 : .9;
+        levelRef.current += (target - levelRef.current) * (1 - Math.pow(retention, elapsed * 60));
         capture.frame = requestAnimationFrame(sample);
       };
       stream.getAudioTracks().forEach((track) => {
@@ -128,5 +135,7 @@ export function useVoiceInput() {
     };
   }, [release, stop]);
 
-  return { status, error, levelRef, start, stop };
+  const getStream = useCallback(() => captureRef.current?.stream, []);
+  const clearError = useCallback(() => setError(""), []);
+  return { status, error, levelRef, start, stop, getStream, clearError };
 }

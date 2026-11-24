@@ -55,6 +55,35 @@ async def request(client: httpx.AsyncClient, method: str, path: str, *, expected
     return response
 
 
+async def create_qualification_group(
+    client: httpx.AsyncClient,
+    run_id: str,
+    agency_id: uuid.UUID,
+    *,
+    prefix: str = "Qualification Synthetic",
+) -> dict:
+    """Create a canonical company and its group through the authenticated API."""
+    company = (await request(
+        client, "POST", "/api/v1/companies", expected=201,
+        params={"agency_id": str(agency_id)},
+        json={"name": f"Synthetic qualification company {run_id}"},
+    )).json()
+    travel_date = datetime.now(UTC).date() + timedelta(days=30)
+    group = (await request(client, "POST", "/api/v1/upload-links", expected=201, json={
+        "company_id": company["id"],
+        "name": f"{prefix} {run_id}", "destination": "Synthetic destination",
+        "travel_date": travel_date.isoformat(),
+        "return_date": (travel_date + timedelta(days=3)).isoformat(),
+        "upload_configuration": {
+            "passport_upload_pages": ["cover", "back_cover"], "passport_live_scan": False,
+            "required_fields": {name: False for name in REQUIRED_FIELD_NAMES},
+        },
+    })).json()
+    assert group["company_id"] == company["id"], "Qualification group company mismatch"
+    assert group["agency_id"] == str(agency_id), "Qualification group agency mismatch"
+    return group
+
+
 async def assert_other_tenant_denied(submission_id: str, run_id: str) -> None:
     agency_id, user_id = uuid.uuid4(), uuid.uuid4()
     email, secret = f"qualification-other-{run_id}@example.test", "JBSWY3DPEHPK3PXP"
@@ -102,14 +131,7 @@ async def main() -> None:
         })).json()
         assert auth["user"]["agency_id"] == str(AGENCY_ID)
         checks.append("production_tls_password_and_mfa_authentication")
-        travel_date = datetime.now(UTC).date() + timedelta(days=30)
-        group = (await request(staff, "POST", "/api/v1/upload-links", expected=201, json={
-            "name": f"Qualification Synthetic {run_id}", "destination": "Synthetic destination",
-            "travel_date": travel_date.isoformat(), "return_date": (travel_date + timedelta(days=3)).isoformat(),
-            "upload_configuration": {"passport_upload_pages": ["cover", "back_cover"],
-                                     "passport_live_scan": False,
-                                     "required_fields": {name: False for name in REQUIRED_FIELD_NAMES}},
-        })).json()
+        group = await create_qualification_group(staff, run_id, AGENCY_ID)
         capability = secrets.token_urlsafe(40)
         headers = {"X-Upload-Session-ID": capability}
         submission = (await request(public, "POST", f"/api/v1/passports/upload/{group['token']}", expected=201,

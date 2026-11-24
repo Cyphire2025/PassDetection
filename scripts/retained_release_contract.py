@@ -13,6 +13,7 @@ from typing import Any
 import release_pdf_checking_profile as pdf_profile
 from mcp_direct_build import BuildError
 from mcp_direct_state import APPLICATION, INFRASTRUCTURE
+from release_assistant_proxy_contract import PROXY_PATH
 from release_code_update import environment, validate_readiness
 from release_traveller_whatsapp import ReleaseError
 
@@ -138,7 +139,8 @@ def select_live(
 
 
 def forbidden_changes(
-    paths: list[str], mode: str, *, route_allowlist_validated: bool = False
+    paths: list[str], mode: str, *, route_allowlist_validated: bool = False,
+    assistant_proxy_validated: bool = False,
 ) -> list[str]:
     require(mode in {"full", "fast"}, "explicit_release_mode_required")
     return [
@@ -147,6 +149,8 @@ def forbidden_changes(
         if not (
             path == ROUTE_ALLOWLIST
             and route_allowlist_validated
+            or path == PROXY_PATH
+            and assistant_proxy_validated
             or mode == "full"
             and path.startswith(FULL_BUILD_PATHS)
         )
@@ -171,11 +175,11 @@ def validate_route_allowlist(source: Path) -> None:
     expected = {"unknown"}
     app = source / "frontend/app"
     for page in app.rglob("page.tsx"):
-        segments = [
-            part
-            for part in page.relative_to(app).parts[:-1]
-            if not (part.startswith("(") and part.endswith(")"))
-        ]
+        segments = []
+        for part in page.relative_to(app).parts[:-1]:
+            if part.startswith("@") or part.startswith("(") and part.endswith(")"):
+                continue
+            segments.append(part[3:] if part.startswith("(.)") else part)
         require(
             all(
                 re.fullmatch(r"(?:[a-z][a-z0-9-]*|\[[A-Za-z][A-Za-z0-9]*\])", part)

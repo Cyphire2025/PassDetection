@@ -21,6 +21,7 @@ from starlette.middleware import Middleware
 from app.application.mcp.authorization import MCPAuthorizationService, MCPPrincipal
 from app.application.mcp.credentials import MCPAuthError
 from app.core.config.settings import Settings
+from app.domain.assistant_identity import ASSISTANT_CLIENT_ID
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
 from app.domain.mcp_read_sections import READ_TOOL_SECTIONS, read_section_catalog
 from app.domain.mcp_section_permissions import WRITE_TOOL_SECTIONS
@@ -94,6 +95,8 @@ class ConnectionTokenVerifier(TokenVerifier):
                 principal = await MCPAuthorizationService(session, self.settings).verify_access(
                     token
                 )
+                if principal.client_id == ASSISTANT_CLIENT_ID:
+                    raise MCPAuthError("invalid_token", 401)
             except MCPAuthError:
                 await AuditLogRepository(session).record(
                     action="mcp.access_denied", entity_type="mcp_connection", result="denied"

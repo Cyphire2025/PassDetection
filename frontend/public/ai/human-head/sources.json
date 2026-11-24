@@ -1,0 +1,64 @@
+{
+  "repository": "https://github.com/Upliner/CharMorph-Vitruvian",
+  "commit": "c252d1fc7f00ba59d87b66b3d32fa3471fc6ee44",
+  "raw_base": "https://raw.githubusercontent.com/Upliner/CharMorph-Vitruvian/c252d1fc7f00ba59d87b66b3d32fa3471fc6ee44",
+  "license": "CC0-1.0",
+  "files": [
+    {
+      "path": "config.yaml",
+      "sha256": "3a09ac1ba030d39fa90e67690bb280e5c85f2d623a170640720493b624bb92d6"
+    },
+    {
+      "path": "faces.npy",
+      "sha256": "2da0c2c924f86c9e005faa3325d00edbc85b9ae05915f8e8d34c8c9c73def8b0"
+    },
+    {
+      "path": "morphs/L1/Default.npy",
+      "sha256": "88f288ccd5dddbfbde440993eeb120967e0b5702579c300548cd35ca985a42c4"
+    },
+    {
+      "path": "morphs/L2/Gender_Female.npz",
+      "sha256": "883839f31ebd0a8454bbae1e5a15ec767ba86741a0b51194f0527bb1b74e34a7"
+    },
+    {
+      "path": "morphs/L2/Gender_Male.npz",
+      "sha256": "46ca3edfd25c9fa7c8f3aca66f155dc8868a024dd7cb8cf13f677c25c568c64c"
+    },
+    {
+      "path": "morphs/L3/aa_02.npz",
+      "sha256": "1a20f67fbc1050c8f5566124ab58348e497d9c9086fd45d503b2805bd68ab7c3"
+    },
+    {
+      "path": "morphs/L3/ow_08.npz",
+      "sha256": "79092acd86f6ff30f8702f909a52e1f7a0013c0a21b8eddeb4a8a5be396cbaaa"
+    },
+    {
+      "path": "morphs/L3/Lips_Up_Corner_Wide_Left.npz",
+      "sha256": "869d541f339eb95c3c9b027c61545bbf47450e3611ed9b8d51018367d5dcbd52"
+    },
+    {
+      "path": "morphs/L3/Lips_Up_Corner_Wide_Right.npz",
+      "sha256": "2f5219f75b27a7bb2f5b84b040d460107c5b7803a454743c30f01d66e550697c"
+    },
+    {
+      "path": "morphs/L3/Lips_Dn_Corner_Wide_Left.npz",
+      "sha256": "d911086d8f89eb3e7e455616263d0b89b669f37b4eebf01b6d250134e7fe15c4"
+    },
+    {
+      "path": "morphs/L3/Lips_Dn_Corner_Wide_Right.npz",
+      "sha256": "78103bc3a417387cef5c13987dda8e86c0fa3ca257d5d854e0c398442010f78f"
+    },
+    {
+      "path": "morphs/L3/p_b_m_21.npz",
+      "sha256": "440c7da31ae3adbba563b1f00bfb35d4c124b431125663f76b4b134d076b03c8"
+    },
+    {
+      "path": "morphs/L3/f_v_18.npz",
+      "sha256": "3e3a6c6eb3c0c5a6cefc368f56ed59a702f3aba73ebd2007cdd5ac362931d727"
+    },
+    {
+      "path": "morphs/L3/Eyes_Closed_Max.npz",
+      "sha256": "f031235bf45eb5267f421b21397b1042a3a9e222105bf841db288a8fce423644"
+    }
+  ]
+}

@@ -19,15 +19,12 @@ export function useFreshContact(state: FreshDraftState, onProof: (proof: FreshPr
     if (!challenge) return;
     void state.serialized(async (signal) => {
       const result = await state.api.verifyCode(challenge.id, code, signal);
-      return { result, signal, receivedAt: Date.now() };
-    }, true).then(async ({ result, signal, receivedAt }) => {
-      // Verification advances the server revision. Read it before submission
-      // can use the proof, without nesting another serialized operation.
-      await state.refresh();
+      const receivedAt = Date.now();
+      await state.syncContactRevision(signal);
       signal.throwIfAborted();
       const next = { id: result.phone_verification_id, email: challenge.email, phone: result.phone_number, expiresAt: receivedAt + result.expires_in_seconds * 1000 };
       setProof(next); setChallenge(undefined); setCode("");
-    }).catch(() => undefined);
+    }, true).catch(() => undefined);
   };
   const currentChallenge = challenge && challenge.email === email.trim() && challenge.phone === normalized;
   const challengeExpired = Boolean(challenge && challenge.expiresAt <= now);

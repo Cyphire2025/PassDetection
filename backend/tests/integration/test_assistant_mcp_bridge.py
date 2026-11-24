@@ -1,0 +1,321 @@
+"""Real SQL, SDK registry and existing MCP authorization; no external services."""
+
+import json
+from contextlib import asynccontextmanager
+from dataclasses import replace
+from datetime import UTC, datetime, timedelta
+from uuid import UUID, uuid4
+
+import pytest
+from fastapi import FastAPI, Request, Response
+from mcp.server.auth.middleware.auth_context import get_access_token
+from mcp.types import ToolAnnotations
+from sqlalchemy import delete, func, select
+
+from app.application.assistant.contracts import AssistantError
+from app.application.assistant.settings_contracts import (
+    AssistantConfiguration,
+    AssistantSettingsUpdate,
+)
+from app.application.mcp.operations import MCPDatabaseOperation
+from app.domain.assistant_identity import ASSISTANT_CLIENT_ID
+from app.domain.entities.entities import UserRole
+from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
+from app.infrastructure.assistant.settings_store import load_snapshot, save_settings
+from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantModel, MCPTokenModel
+from app.infrastructure.database.models import (
+    AgencyModel,
+    AuditLogModel,
+    DashboardSessionModel,
+    UserSecurityStateModel,
+)
+from app.infrastructure.repositories.user_repository import UserRepository
+from app.presentation.api.v1.routes import ai_assistant, ai_assistant_settings
+from app.presentation.assistant import mcp_bridge, reads
+from app.presentation.mcp.invocation import invoke_operation, invoke_read
+from app.presentation.mcp.server import ReviewedMCPServer
+from tests.integration.test_mcp_operations import create_agency, seed_identity
+from tests.integration.test_mcp_operations import operations_fixture as operations_fixture
+
+
+@pytest.fixture
+async def linked(operations_fixture, monkeypatch):
+    session, settings, model, grants, _ = operations_fixture
+    grants[0].capabilities = ["mcp:read", "mcp:change"]
+    await session.commit()
+    actor = await UserRepository(session).get_by_id(model.id)
+
+    @asynccontextmanager
+    async def sessions():
+        yield session
+
+    monkeypatch.setattr(mcp_bridge, "AsyncSessionFactory", sessions)
+    monkeypatch.setattr(reads, "AsyncSessionFactory", sessions)
+    monkeypatch.setattr(mcp_bridge, "get_settings", lambda: settings)
+    app = FastAPI()
+    app.state.mcp_session_factory = sessions
+    server = ReviewedMCPServer("Synthetic existing MCP")
+
+    @server.tool(annotations=ToolAnnotations(read_only_hint=True), meta={"capability": "mcp:read"})
+    async def connection_status() -> dict:
+        async def operation(db, principal):
+            return {"grant_id": str(principal.grant_id), "agencies": await db.scalar(select(func.count()).select_from(AgencyModel))}
+        return await invoke_read(app, settings, MCPToolPolicy("connection_status", MCPCapability.READ, frozenset({"read"})), operation)
+
+    @server.tool(annotations=ToolAnnotations(read_only_hint=False), meta={"capability": "mcp:change"})
+    async def create_group(name: str, idempotency_key: str) -> dict:
+        token = get_access_token()
+        assert token is not None
+        policy = MCPToolPolicy("create_group", MCPCapability.CHANGE, frozenset({"create"}))
+        return await invoke_operation(app, settings, MCPDatabaseOperation(policy, create_agency),
+                                      idempotency_key=idempotency_key, payload={"name": name})
+
+    app.state.mcp_server = server
+    config = AssistantConfiguration(mcp_connection_id=grants[0].id)
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=0, configuration=config))
+    now = datetime.now(UTC)
+    family = DashboardSessionModel(id=uuid4(), user_id=actor.id, session_version=actor.session_version,
+                                  created_at=now, expires_at=now + timedelta(days=1))
+    session.add(family)
+    await session.commit()
+    request = Request({"type": "http", "app": app})
+    request.state.auth_claims = {"sub": str(actor.id), "sv": actor.session_version, "sid": str(family.id),
+                                 "amr": ["pwd", "totp"], "mfa_at": now.timestamp()}
+    bridge = mcp_bridge.MCPAssistantBridge(request, actor)
+    return session, settings, actor, grants, config, bridge
+
+
+async def test_default_discovery_is_observational_and_invocation_uses_private_authority(linked):
+    session, _, _, grants, _, bridge = linked
+    before = await session.scalar(select(func.count()).select_from(MCPTokenModel))
+    visible = await bridge.discover()
+    assert [tool["name"] for tool in visible["tools"]] == ["connection_status"]
+    assert visible["write_enabled"] is False
+    assert await session.scalar(select(func.count()).select_from(MCPGrantModel)) == 2
+    result = await bridge.call("connection_status", "{}")
+    assert "grant_id" in result["result"], result
+    assert result["result"]["grant_id"] == bridge.request.state.auth_claims["sid"]
+    assert result["result"]["grant_id"] not in {str(grant.id) for grant in grants}
+    assert result["result"]["agencies"] == 0
+    assert await session.scalar(select(func.count()).select_from(MCPTokenModel)) == before
+    assert await session.scalar(select(func.count()).select_from(MCPGrantModel)) == 3
+    assert await session.scalar(select(func.count()).select_from(AuditLogModel)) >= 2
+    assert get_access_token() is None
+    assert "gcmcp_access_" not in json.dumps(result)
+
+
+async def test_ai_toggle_admits_only_existing_write_scope_and_idempotency(linked):
+    session, _, actor, grants, config, bridge = linked
+    control = await session.get(MCPControlModel, 1)
+    before_policy = (list(grants[0].capabilities), grants[0].write_enabled, list(control.allowed_write_tools))
+    args = json.dumps({"name": "Synthetic AI request", "idempotency_key": "assistant-test-request-001"})
+    with pytest.raises(AssistantError, match="not permitted"):
+        await bridge.call("create_group", args)
+    assert await session.scalar(select(func.count()).select_from(AgencyModel)) == 0
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config.model_copy(update={"mcp_write_enabled": True})))
+    assert "create_group" in {tool["name"] for tool in (await bridge.discover())["tools"]}
+    first = await bridge.call("create_group", args)
+    repeated = await bridge.call("create_group", args)
+    assert "operation_id" in first["result"]["receipt"], first
+    assert first["result"]["receipt"]["operation_id"] == repeated["result"]["receipt"]["operation_id"]
+    assert await session.scalar(select(func.count()).select_from(AgencyModel)) == 1
+    assert before_policy == (list(grants[0].capabilities), grants[0].write_enabled, list(control.allowed_write_tools))
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=2, configuration=config))
+    with pytest.raises(AssistantError, match="not permitted"):
+        await bridge.call("create_group", args)
+
+
+@pytest.mark.parametrize("restriction", ["global_write", "scope", "sections", "tool", "deployment_read_only"])
+async def test_ai_write_cannot_expand_mcp_permissions(linked, restriction):
+    session, settings, actor, _, config, bridge = linked
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config.model_copy(update={"mcp_write_enabled": True})))
+    control = await session.get(MCPControlModel, 1)
+    if restriction == "global_write":
+        control.write_enabled = False
+    elif restriction == "scope":
+        settings.mcp.enabled_capabilities = ["mcp:read"]
+    elif restriction == "sections":
+        control.allowed_write_sections = []
+    elif restriction == "tool":
+        control.allowed_write_tools = []
+    else:
+        settings.mcp.read_only_mode = True
+    await session.commit()
+    assert "create_group" not in {tool["name"] for tool in (await bridge.discover())["tools"]}
+    with pytest.raises(AssistantError):
+        await bridge.call("create_group", '{"name":"blocked","idempotency_key":"blocked-request-001"}')
+    assert await session.scalar(select(func.count()).select_from(AgencyModel)) == 0
+
+
+async def test_dashboard_session_revocation_and_effective_role_are_rechecked(linked):
+    session, _, actor, _, _, bridge = linked
+    assert (await bridge.discover())["tools"]
+    family = await session.get(DashboardSessionModel, UUID(bridge.request.state.auth_claims["sid"]))
+    family.revoked_at = datetime.now(UTC)
+    await session.commit()
+    with pytest.raises(AssistantError) as denied:
+        await bridge.call("connection_status", "{}")
+    assert denied.value.status == 403
+    bridge.user = replace(actor, role=UserRole.AGENCY_ADMIN, actual_role=UserRole.SUPER_ADMIN)
+    with pytest.raises(AssistantError):
+        await bridge.discover()
+
+
+async def test_multiple_external_connections_need_no_selection_and_unknown_tools_fail_closed(linked):
+    session, _, actor, _, config, bridge = linked
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config.model_copy(update={"mcp_connection_id": None})))
+    assert (await bridge.discover())["total"] == 1
+    with pytest.raises(AssistantError) as denied:
+        await bridge.dispatch("execute_sql", {"sql": "DELETE FROM users"})
+    assert denied.value.code == "query_rejected"
+
+
+async def test_another_administrator_cannot_borrow_dashboard_session_claims(linked):
+    session, settings, _, _, _, bridge = linked
+    other, _, _ = await seed_identity(session, settings, email="second-ai-owner@example.test")
+    await session.commit()
+    bridge.user = await UserRepository(session).get_by_id(other.id)
+    with pytest.raises(AssistantError) as denied:
+        await bridge.call("connection_status", "{}")
+    assert denied.value.status == 403
+
+
+async def test_failed_invocation_removes_credential_and_resets_auth_context(linked, monkeypatch):
+    session, _, _, _, _, bridge = linked
+    before = await session.scalar(select(func.count()).select_from(MCPTokenModel))
+    async def fail(*args):
+        assert get_access_token() is not None
+        raise RuntimeError("private provider detail")
+    monkeypatch.setattr(bridge.request.app.state.mcp_server, "call_tool", fail)
+    with pytest.raises(AssistantError) as failed:
+        await bridge.call("connection_status", "{}")
+    assert "private provider" not in failed.value.message
+    assert get_access_token() is None
+    assert await session.scalar(select(func.count()).select_from(MCPTokenModel)) == before
+
+
+@pytest.mark.parametrize("restriction", ["revoked", "disabled", "expired", "identity", "absent"])
+async def test_external_connections_are_irrelevant_and_unchanged(linked, restriction, monkeypatch):
+    session, _, actor, grants, config, bridge = linked
+    config = config.model_copy(update={"mcp_connection_id": None, "mcp_write_enabled": True})
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config))
+    control = await session.get(MCPControlModel, 1)
+    for grant in grants:
+        if restriction == "revoked":
+            grant.revoked_at = datetime.now(UTC)
+        elif restriction == "disabled":
+            grant.enabled = False
+        elif restriction == "expired":
+            grant.created_at = datetime.now(UTC) - timedelta(days=8)
+            grant.expires_at = datetime.now(UTC) - timedelta(days=1)
+        elif restriction == "identity":
+            grant.security_version += 1
+    if restriction == "absent":
+        await session.execute(delete(MCPTokenModel))
+        await session.execute(delete(MCPGrantModel))
+    await session.commit()
+    def authority_state():
+        return [(grant.id, grant.enabled, str(grant.revoked_at), str(grant.expires_at), grant.security_version) for grant in grants]
+
+    before = authority_state()
+    tokens = await session.scalar(select(func.count()).select_from(MCPTokenModel))
+    assert (await bridge.discover())["total"] == 2
+    assert (await bridge.call("connection_status", "{}"))["result"]["agencies"] == 0
+    assert before == authority_state()
+    assert await session.scalar(select(func.count()).select_from(MCPGrantModel).where(MCPGrantModel.client_id != ASSISTANT_CLIENT_ID)) == (0 if restriction == "absent" else 2)
+    assert await session.scalar(select(func.count()).select_from(MCPTokenModel)) == tokens
+    assert control.enabled is True
+    snapshot = await load_snapshot(session)
+    assert snapshot.revision == 2
+    assert snapshot.configuration == config
+    monkeypatch.setattr(ai_assistant, "fresh_actor", reads.fresh_actor)
+    response = Response()
+    live = await ai_assistant.assistant_live(bridge.request, response, actor)
+    assert live["mcp"]["connected"] is True
+    assert response.headers["Cache-Control"] == "private, no-store"
+
+
+async def test_legacy_selected_connection_is_ignored_without_saving_configuration(linked):
+    session, _, actor, grants, config, bridge = linked
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config.model_copy(update={"mcp_connection_id": None})))
+    grants[1].revoked_at = datetime.now(UTC)
+    await session.commit()
+    assert (await bridge.discover())["total"] == 1
+    assert (await bridge.call("connection_status", "{}"))["result"]["grant_id"] == bridge.request.state.auth_claims["sid"]
+    snapshot = await load_snapshot(session)
+    assert snapshot.configuration.mcp_connection_id is None
+    assert snapshot.revision == 2
+    assert grants[1].revoked_at is not None
+
+
+async def test_live_reports_effective_tools_and_writes_not_just_ai_toggle(linked, monkeypatch):
+    session, _, actor, _, config, bridge = linked
+    monkeypatch.setattr(ai_assistant, "fresh_actor", reads.fresh_actor)
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config.model_copy(update={"mcp_write_enabled": True})))
+    live = await ai_assistant.assistant_live(bridge.request, Response(), actor)
+    assert live["mcp"] == {"connected": True, "available_tools": 2, "write_enabled": True}
+    control = await session.get(MCPControlModel, 1)
+    control.write_enabled = False
+    await session.commit()
+    live = await ai_assistant.assistant_live(bridge.request, Response(), actor)
+    assert live["mcp"] == {"connected": True, "available_tools": 1, "write_enabled": False}
+    control.read_enabled = False
+    await session.commit()
+    live = await ai_assistant.assistant_live(bridge.request, Response(), actor)
+    assert live["mcp"]["connected"] is False
+    assert live["mcp"]["write_enabled"] is False
+    assert live["mcp"]["available_tools"] == 0
+    assert live["mcp"]["code"] == "mcp_no_tools"
+    assert (await load_snapshot(session)).configuration.mcp_write_enabled is True
+
+
+@pytest.mark.parametrize("restriction", ["paused", "identity", "session", "mfa", "subject"])
+async def test_signed_in_authority_fails_closed_after_access_changes(linked, restriction):
+    session, _, actor, _, _, bridge = linked
+    assert (await bridge.discover())["total"] == 1
+    if restriction == "paused":
+        (await session.get(MCPControlModel, 1)).enabled = False
+    elif restriction == "identity":
+        (await session.get(UserSecurityStateModel, actor.id)).session_version += 1
+    elif restriction == "session":
+        family = await session.get(DashboardSessionModel, UUID(bridge.request.state.auth_claims["sid"]))
+        family.expires_at = datetime.now(UTC) - timedelta(seconds=1)
+    elif restriction == "mfa":
+        bridge.request.state.auth_claims["amr"] = ["pwd"]
+    else:
+        bridge.request.state.auth_claims["sub"] = str(uuid4())
+    await session.commit()
+    status = await bridge.status()
+    assert status["mcp"]["connected"] is False
+    with pytest.raises(AssistantError):
+        await bridge.call("connection_status", "{}")
+    assert await session.scalar(select(func.count()).select_from(MCPGrantModel)) == 2
+
+
+async def test_settings_status_when_ai_disabled_is_observational(linked):
+    session, _, actor, _, config, bridge = linked
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config.model_copy(update={"enabled": False})))
+    response = Response()
+    status = await ai_assistant_settings.assistant_mcp_access(bridge.request, response, actor)
+    assert status["mcp"]["code"] == "mcp_ai_disabled"
+    assert status["mcp"]["connected"] is False
+    assert response.headers["Cache-Control"] == "private, no-store"
+    assert await session.scalar(select(func.count()).select_from(MCPGrantModel)) == 2
+
+
+async def test_write_disabled_between_discovery_and_wrapper_cannot_execute(linked, monkeypatch):
+    session, _, actor, _, config, bridge = linked
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config.model_copy(update={"mcp_write_enabled": True})))
+    server = bridge.request.app.state.mcp_server
+    invoke = server.call_tool
+
+    async def disable_then_invoke(name, arguments):
+        await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=2, configuration=config))
+        return await invoke(name, arguments)
+
+    monkeypatch.setattr(server, "call_tool", disable_then_invoke)
+    result = await bridge.call("create_group", '{"name":"must remain absent","idempotency_key":"assistant-race-request-001"}')
+    assert result["result"]["error"] == "access_denied"
+    assert "receipt" not in result["result"]
+    assert await session.scalar(select(func.count()).select_from(AgencyModel)) == 0
+    assert (await load_snapshot(session)).configuration.mcp_write_enabled is False

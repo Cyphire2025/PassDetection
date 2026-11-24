@@ -28,6 +28,7 @@ from app.infrastructure.repositories.document_rename_read_repository import (
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.api.v1.routes.document_rename import get_rename_batch, list_rename_batches
 from tests.integration.test_mcp_operations import operations_fixture as operations_fixture
+from tests.mcp_authority_assertions import assert_external_read_authority
 from tests.mcp_rename_fixtures import seed_rename_data
 
 
@@ -94,7 +95,8 @@ async def test_scalar_projection_omits_keys_and_opt_out_identifier_columns(renam
         for model in (DocumentRenameBatchModel, DocumentRenameItemModel):
             event.remove(model, "load", forbidden)
             event.remove(model, "refresh", forbidden)
-    assert len(statements) == 9
+    assert_external_read_authority(statements)
+    assert len(statements) == 10
     item_sql = next(sql for sql in statements if " as storage_present" in sql).split("\nfrom")[0]
     assert "storage_key !=" in item_sql and " as storage_present" in item_sql
     assert " document_rename_items.storage_key," not in item_sql

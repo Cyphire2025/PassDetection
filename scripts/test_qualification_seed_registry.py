@@ -1,4 +1,4 @@
-"""The standalone QA seeder must resolve its ORM without application imports."""
+"""Standalone QA entrypoints resolve their ORM without application imports."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class QualificationSeedRegistryTests(unittest.TestCase):
-    def test_standalone_seed_resolves_relationships_and_foreign_keys(self) -> None:
+    def test_standalone_entrypoints_resolve_relationships_and_foreign_keys(self) -> None:
         environment = {
             **os.environ,
             "APP_ENV": "development",
@@ -39,12 +39,13 @@ for table in Base.metadata.tables.values():
 """
         # A fresh directory prevents loading a developer's .env; no connections
         # or seed writes are made while configuring mapper metadata.
-        with tempfile.TemporaryDirectory(prefix="passdetection-seed-registry-") as directory:
-            result = subprocess.run(
-                [sys.executable, "-c", code, str(ROOT / "scripts/qa/seed_enterprise_browser_stack.py")],
-                cwd=directory, env=environment, capture_output=True, text=True, timeout=60, check=False,
-            )
-        self.assertEqual(result.returncode, 0, result.stderr)
+        for entrypoint in ("seed_enterprise_browser_stack.py", "qualification_restored_objects.py"):
+            with self.subTest(entrypoint=entrypoint), tempfile.TemporaryDirectory(prefix="passdetection-qa-registry-") as directory:
+                result = subprocess.run(
+                    [sys.executable, "-c", code, str(ROOT / "scripts/qa" / entrypoint)],
+                    cwd=directory, env=environment, capture_output=True, text=True, timeout=60, check=False,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
 
 
 if __name__ == "__main__":

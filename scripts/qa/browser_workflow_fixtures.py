@@ -12,7 +12,11 @@ import hashlib
 import json
 import sys
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from upload_configuration_http_smoke import REQUIRED_FIELD_NAMES
 
 from app.core.config.settings import get_settings
 from app.core.security.password import hash_password
@@ -21,26 +25,14 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
     PassengerQRTokenModel,
-    PassportSubmissionModel,
     UserModel,
     UserSecurityStateModel,
 )
-from app.infrastructure.database.public_upload_contact_model import (
-    PublicUploadContactChallengeModel,
-)
 from app.infrastructure.database.session import AsyncSessionFactory, engine
 from app.infrastructure.qr.approved_passenger_qr_issuer import qr_hash
-from app.presentation.api.v1.routes.passport_routes.contact_verification import (
-    _code_digest,
-    _digest,
-)
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from upload_configuration_http_smoke import REQUIRED_FIELD_NAMES
 
 BROWSER_NAMES = ("chromium", "firefox", "webkit")
 COORDINATOR_PASSWORD = "Browser-Workflow-Qualification-628!"
-CONTACT_CODE = "638291"
 
 
 def require_isolated_database() -> None:
@@ -137,35 +129,21 @@ async def seed_browser_workflows(
     return details
 
 
-async def seed_contact_challenge(body: dict[str, str]) -> None:
-    require_isolated_database()
-    submission_id = uuid.UUID(body["submission_id"])
-    challenge_id = uuid.uuid4()
-    now = datetime.now(UTC)
-    async with AsyncSessionFactory() as db:
-        row = await db.get(PassportSubmissionModel, submission_id)
-        group = await db.get(ClientGroupModel, row.group_id) if row else None
-        if not group or group.token not in {f"enterprise-browser-public-{browser}-qa" for browser in BROWSER_NAMES}:
-            raise RuntimeError("Contact fixture accepts only the dedicated browser upload groups")
-        existing = await db.get(PublicUploadContactChallengeModel, row.id)
-        if existing:
-            await db.delete(existing)
-            await db.flush()
-        db.add(PublicUploadContactChallengeModel(
-            submission_id=row.id, id=challenge_id, group_id=group.id,
-            upload_session_hash=_digest("upload-session", body["session_id"]),
-            email_hash=_digest("email", body["email"]), phone_number=body["phone_number"],
-            code_hash=_code_digest(challenge_id, CONTACT_CODE), status="pending", attempt_count=0,
-            max_attempts=5, expires_at=now + timedelta(minutes=5), resend_available_at=now,
-            created_at=now, updated_at=now,
-        ))
-        await db.commit()
-    print(json.dumps({"challenge_id": str(challenge_id), "expires_in_seconds": 300, "resend_after_seconds": 0, "phone_number": body["phone_number"]}))
-
-
 async def main() -> None:
+    from fresh_browser_workflow import inspect_publication, request_contact
+
+    from app.application.travellers.draft_store import FreshDraftStore
+    from app.core.config.traveller_reuse import get_traveller_reuse_settings
+    from app.infrastructure.security.traveller_reuse_crypto import TravellerReuseCrypto
+
     try:
-        await seed_contact_challenge(json.loads(sys.stdin.read(4096)))
+        require_isolated_database()
+        body = json.loads(sys.stdin.read(4096))
+        operations = {"request_contact": request_contact, "inspect_publication": inspect_publication}
+        operation = operations[body["operation"]]
+        async with AsyncSessionFactory() as db:
+            store = FreshDraftStore(db, get_settings(), TravellerReuseCrypto(get_traveller_reuse_settings()))
+            print(json.dumps(await operation(store, body)))
     finally:
         await engine.dispose()
 

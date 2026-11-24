@@ -1,0 +1,426 @@
+import { expect, test, type Page } from "@playwright/test";
+import { assistantAuth } from "./support/assistant-auth";
+import { selectAssistantAppearance } from "./support/assistant-appearance";
+import { syntheticMicrophone } from "./support/ai-voice-fixtures";
+import { DEFAULT_USAGE_LIMITS, type AssistantConfiguration } from "../features/ai/settings-api";
+
+const configuration: AssistantConfiguration = { enabled: true, allowed_roles: [], allowed_user_ids: [], provider: "gemini",
+  gemini_model: "gemini-3.8-flash", gemini_live_model: "gemini-3.8-live", gemini_image_model: "gemini-3.1-flash-image",
+  gemini_voice: "Zephyr", reasoning_effort: "high", openai_reasoning_effort: "high", openai_speech_model: "", openai_voice: "marin", usage_limits: DEFAULT_USAGE_LIMITS };
+
+async function fixture(page: Page, role = "super_admin", allowed = true) {
+  await assistantAuth(page, role);
+  const state = { revision: 0, configuration: { ...configuration }, credentials: { gemini: false, openai: false }, granted_users: [] };
+  const writes: Record<string, unknown>[] = [];
+  await page.route("**/api/v1/ai-assistant/**", async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path.endsWith("/availability")) return route.fulfill({ json: { enabled: state.configuration.enabled, allowed: allowed && state.configuration.enabled } });
+    if (path.endsWith("/status")) return route.fulfill({ json: { configured: true, speech_configured: true,
+      provider: state.configuration.provider === "gemini" ? "gemini" : "openai", mode: state.configuration.provider, native_voice: true, voice_configured: true, avatar_appearance: state.configuration.voice_presentation || (state.configuration.voice_name === "cedar" ? "male" : "female"), voice_provider: state.configuration.provider === "openai" ? "openai" : "gemini", model: state.configuration.provider === "gemini" ? "gemini-3.8-flash" : "gpt-6-luna", reasoning_effort: state.configuration.openai_reasoning_effort,
+      account_id: "synthetic", account_scope: role, settings_revision: state.revision, can_manage_settings: role === "super_admin", access: "read_only" } });
+    if (path.endsWith("/settings/models")) return route.fulfill({ json: { revision: state.revision, observed_at: "2026-10-19T00:00:00Z", providers: [{ provider: "openai", status: "ready", message: "Connected" }, { provider: "gemini", status: "ready", message: "Connected" }], models: [
+      { id: "openai:gpt-6-luna", model: "gpt-6-luna", provider: "openai", label: "GPT-6 Luna", kind: "chat", available: true, reasoning: ["none", "low", "medium", "high", "xhigh", "max"], voices: [] },
+      { id: "openai:gpt-4.1", model: "gpt-4.1", provider: "openai", label: "GPT-4.1", kind: "chat", available: true, reasoning: [], voices: [] },
+      { id: "gemini:gemini-3.8-flash", model: "gemini-3.8-flash", provider: "gemini", label: "Gemini 3.8 Flash", kind: "chat", available: true, reasoning: ["low", "medium", "high"], voices: [] },
+      { id: "openai:gpt-realtime-2.1", model: "gpt-realtime-2.1", provider: "openai", label: "GPT Realtime 2.1", kind: "voice", available: true, reasoning: ["low", "medium", "high"], voices: [{ id: "marin", label: "Marin", appearance: "female" }, { id: "cedar", label: "Cedar", appearance: "male" }] },
+      { id: "gemini:gemini-3.8-live", model: "gemini-3.8-live", provider: "gemini", label: "Gemini 3.8 Live", kind: "voice", available: true, reasoning: [], voices: [{ id: "Zephyr", label: "Zephyr", appearance: "female" }, { id: "Puck", label: "Puck", appearance: "male" }] },
+    ] } });
+    if (path.endsWith("/settings/mcp-access") || path.endsWith("/live")) return route.fulfill({ json: { observed_at: new Date().toISOString(), mcp: state.configuration.enabled
+      ? { connected: true, available_tools: 8, write_enabled: state.configuration.mcp_write_enabled ?? false }
+      : { connected: false, code: "mcp_ai_disabled", message: "Enable the AI assistant in settings to use workspace tools." } } });
+    if (path.endsWith("/people")) return route.fulfill({ json: { items: [], has_more: false } });
+    if (path.endsWith("/settings/usage")) return route.fulfill({ json: { observed_at: new Date().toISOString(), resets_at: new Date(Date.now()+3600000).toISOString(), limits: state.configuration.usage_limits, used: { voice_chats: 2, typed_requests: 7, images: 1, uploads: 3, speech_requests: 4 } } });
+    if (path.endsWith("/settings")) {
+      if (route.request().method() === "PUT") {
+        const body = route.request().postDataJSON(); writes.push(body);
+        state.configuration = body.configuration; state.revision++;
+        if (body.gemini_api_key) state.credentials.gemini = true;
+        if (body.openai_api_key) state.credentials.openai = true;
+      }
+      return route.fulfill({ json: state });
+    }
+    if (path.endsWith("/settings/check")) return route.fulfill({ json: { ok: true, message: "API key accepted." } });
+    return route.fulfill({ json: { items: [], next_cursor: null } });
+  });
+  await page.route("**/api/v1/dashboard/stats", (route) => route.fulfill({ json: { total_passports: 0, pending_review: 0, confirmed: 0, active_links: 0, recent_submissions: [] } }));
+  return { state, writes };
+}
+
+test("header orb opens and shrinks while retaining the dashboard and its microphone policy", async ({ page }, testInfo) => {
+  test.setTimeout(90000);
+  await fixture(page);
+  await page.goto("/dashboard");
+  const orb = page.getByRole("button", { name: "Open Global Connects AI", exact: true });
+  await expect(orb).toBeVisible();
+  await page.evaluate(() => { document.documentElement.dataset.aiNavigationProof = "same-document"; });
+  const bounds = await orb.boundingBox();
+  await orb.click();
+  const overlay = page.getByTestId("assistant-overlay");
+  await expect(overlay).toBeVisible();
+  await expect(page.getByRole("main", { name: "Global Connects AI workspace" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.dataset.aiNavigationProof)).toBe("same-document");
+  expect(await page.evaluate(() => (document as Document & { featurePolicy: { allowsFeature: (name: string) => boolean } }).featurePolicy.allowsFeature("microphone"))).toBe(true);
+  await expect(overlay).toHaveCSS("clip-path", "none");
+  await page.screenshot({ path: testInfo.outputPath("ai-expanded-from-header.png"), fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("link", { name: "AI settings", exact: true })).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.getByRole("button", { name: "Back to workspace" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(overlay).not.toBeAttached();
+  await expect(orb).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.dataset.aiNavigationProof)).toBe("same-document");
+  await expect(orb).toBeFocused();
+  expect(bounds!.width).toBeGreaterThan(30);
+});
+
+test("superadmin can save a key and grants, then disable the launcher", async ({ page }) => {
+  const { writes } = await fixture(page);
+  await page.goto("/settings/ai");
+  await expect(page.getByTestId("assistant-settings")).toBeVisible();
+  const key = page.getByLabel("Gemini AI Studio API key", { exact: true });
+  await key.fill("synthetic-browser-key-123456");
+  await page.getByLabel("Managers", { exact: true }).check();
+  await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
+  await expect(key).toHaveValue("");
+  expect(writes[0].gemini_api_key).toBe("synthetic-browser-key-123456");
+  expect((writes[0].configuration as typeof configuration).allowed_roles).toContain("agency_manager");
+  await expect(page.getByRole("button", { name: "Open Global Connects AI", exact: true })).toBeVisible();
+  await page.getByRole("switch", { name: "Enable Global Connects AI" }).uncheck();
+  await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Open Global Connects AI", exact: true })).not.toBeAttached();
+  await expect(page.getByText("Enable the AI assistant in settings to use workspace tools.", { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("synthetic-browser-key-123456"))).toBeNull();
+});
+
+test("denied workspace tools stay visible while chat and AI model settings remain usable", async ({ page }, testInfo) => {
+  const { state, writes } = await fixture(page);
+  state.configuration.mcp_write_enabled = true; state.configuration.mcp_connection_id = "b6c548e0-6e77-4d1b-b107-6799b9d31230";
+  const permissionWrites: string[] = [];
+  page.on("request", (request) => { if (/^\/api\/v1\/(?:admin\/)?mcp(?:\/|$)/.test(new URL(request.url()).pathname) && request.method() !== "GET") permissionWrites.push(request.url()); });
+  const unavailable = { observed_at: new Date().toISOString(), mcp: { connected: false, code: "mcp_access_denied", message: "Your signed-in account cannot currently use workspace MCP tools. Review your account and AI access settings." } };
+  await page.route("**/api/v1/ai-assistant/live", (route) => route.fulfill({ json: unavailable }));
+  await page.route("**/api/v1/ai-assistant/settings/mcp-access", (route) => route.fulfill({ json: unavailable }));
+  await page.goto("/ai");
+  await expect(page.getByLabel("Workspace tools unavailable")).toHaveAttribute("data-connected", "false");
+  await expect(page.getByRole("link", { name: "Review AI workspace access" })).toHaveAttribute("href", "/settings/ai#ai-mcp-access");
+  await page.getByRole("textbox", { name: "Message Global Connects" }).fill("A general question");
+  await expect(page.getByRole("button", { name: "Send message", exact: true })).toBeEnabled();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("link", { name: "Review AI workspace access" })).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("ai-mcp-unavailable-mobile.png") });
+  await page.goto("/settings/ai");
+  await expect(page.getByText(unavailable.mcp.message, { exact: true })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "MCP connection", exact: true })).not.toBeAttached();
+  await expect(page.getByRole("switch", { name: /Allow MCP write access for AI/ })).toBeChecked();
+  await page.getByRole("combobox", { name: "Chat & document model", exact: true }).selectOption("openai:gpt-4.1");
+  await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
+  await expect(page.getByText("AI settings saved.", { exact: true })).toBeVisible();
+  expect(writes).toHaveLength(1);
+  expect(state.configuration.mcp_write_enabled).toBe(true);
+  expect(state.configuration.mcp_connection_id).toBe("b6c548e0-6e77-4d1b-b107-6799b9d31230");
+  expect(permissionWrites).toEqual([]);
+});
+
+test("signed-in workspace access needs no external MCP connection and writes remain an AI-only choice", async ({ page }) => {
+  const { state, writes } = await fixture(page);
+  state.configuration.mcp_connection_id = "b6c548e0-6e77-4d1b-b107-6799b9d31230";
+  const externalRequests: string[] = [];
+  page.on("request", (request) => {
+    const path = new URL(request.url()).pathname;
+    if (/^\/api\/v1\/(?:admin\/)?mcp(?:\/|$)/.test(path) || path.endsWith("/settings/mcp-connections")) externalRequests.push(path);
+  });
+  await page.route("**/api/v1/ai-assistant/settings/mcp-connections", (route) => route.fulfill({ status: 503, json: { detail: "External connections unavailable" } }));
+  await page.goto("/settings/ai");
+  await expect(page.getByText("8 workspace tools available", { exact: true })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "MCP connection", exact: true })).not.toBeAttached();
+  await expect(page.getByText("Write actions are off for the assistant.", { exact: true })).toBeVisible();
+  const write = page.getByRole("switch", { name: /Allow MCP write access for AI/ });
+  await expect(write).not.toBeChecked();
+  await write.check();
+  await expect(page.getByText("Write actions are off for the assistant.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
+  await expect(page.getByText("Write actions permitted by MCP are available to the assistant.", { exact: true })).toBeVisible();
+  expect(writes).toHaveLength(1);
+  expect(state.configuration.mcp_write_enabled).toBe(true);
+  expect(state.configuration.mcp_connection_id).toBe("b6c548e0-6e77-4d1b-b107-6799b9d31230");
+  await page.goto("/ai");
+  await expect(page.getByLabel("Workspace connected", { exact: true })).toHaveAttribute("data-connected", "true");
+  expect(externalRequests).toEqual([]);
+});
+
+test("failed workspace access checks can retry without losing the chat draft", async ({ page }) => {
+  await fixture(page);
+  let recovered = false;
+  await page.route("**/api/v1/ai-assistant/live", (route) => recovered
+    ? route.fulfill({ json: { observed_at: new Date().toISOString(), mcp: { connected: true, available_tools: 8, write_enabled: false } } })
+    : route.fulfill({ status: 503, json: { detail: "Temporary check failure" } }));
+  await page.goto("/ai");
+  await expect(page.getByLabel("Workspace tools unavailable")).toHaveAttribute("data-connected", "false");
+  await expect(page.getByText("Workspace access could not be checked. Try again.")).toBeVisible();
+  await page.getByRole("textbox", { name: "Message Global Connects" }).fill("Keep this draft");
+  recovered = true;
+  await page.getByRole("button", { name: "Check workspace access again" }).click();
+  await expect(page.getByLabel("Workspace connected", { exact: true })).toHaveAttribute("data-connected", "true");
+  await expect(page.getByRole("textbox", { name: "Message Global Connects" })).toHaveValue("Keep this draft");
+  await expect(page.getByRole("button", { name: "Check workspace access again" })).not.toBeAttached();
+});
+
+test("ungranted staff cannot see the orb or manage settings", async ({ page }) => {
+  await fixture(page, "agency_staff", false);
+  await page.goto("/dashboard");
+  // Staff's established landing route is All Groups rather than Dashboard.
+  await expect(page.getByRole("banner")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open Global Connects AI", exact: true })).not.toBeAttached();
+  await page.goto("/settings/ai");
+  await expect(page.getByLabel("Gemini AI Studio API key", { exact: true })).not.toBeAttached();
+  await expect(page.getByTestId("assistant-settings")).not.toBeAttached();
+});
+
+test("models from both providers drive reasoning, voices and the AI-only write switch", async ({ page }, testInfo) => {
+  const { state, writes } = await fixture(page);
+  await page.goto("/settings/ai");
+  await expect(page.getByLabel("Provider mode", { exact: true })).not.toBeAttached();
+  const chat = page.getByRole("combobox", { name: "Chat & document model", exact: true });
+  const reasoning = page.getByRole("combobox", { name: "Chat reasoning", exact: true });
+  await expect(chat).toBeEnabled();
+  await chat.selectOption("openai:gpt-6-luna");
+  await expect(reasoning.locator("option")).toHaveCount(7);
+  await reasoning.selectOption("max");
+  await chat.selectOption("openai:gpt-4.1");
+  await expect(reasoning).toBeDisabled();
+  await chat.selectOption("gemini:gemini-3.8-flash");
+  await expect(reasoning.locator("option")).toHaveCount(4);
+  await reasoning.selectOption("low");
+  const voiceModel = page.getByRole("combobox", { name: "Native voice model", exact: true });
+  await voiceModel.selectOption("openai:gpt-realtime-2.1");
+  await page.getByRole("combobox", { name: "Voice", exact: true }).selectOption("cedar");
+  await expect(page.getByRole("combobox", { name: "Voice reasoning", exact: true })).toHaveValue("low");
+  const write = page.getByRole("switch", { name: /Allow MCP write access for AI/ });
+  await expect(write).not.toBeChecked(); await write.check();
+  await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
+  await expect(page.getByText("AI settings saved.", { exact: true })).toBeVisible();
+  expect(writes).toHaveLength(1);
+  expect(state.configuration.chat_model).toBe("gemini:gemini-3.8-flash");
+  expect(state.configuration.chat_reasoning).toBe("low");
+  expect(state.configuration.voice_model).toBe("openai:gpt-realtime-2.1");
+  expect(state.configuration.voice_name).toBe("cedar");
+  expect(state.configuration.mcp_write_enabled).toBe(true);
+  await page.reload(); await expect(reasoning).toHaveValue("low");
+  await expect(write).toBeChecked();
+  await page.getByRole("region", { name: "Models & voice" }).screenshot({ path: testInfo.outputPath("ai-model-settings-desktop.png"), style: "[data-testid='assistant-settings'] .sticky, nextjs-portal { visibility: hidden !important; }" });
+  await page.getByRole("region", { name: "MCP access" }).screenshot({ path: testInfo.outputPath("ai-mcp-access-desktop.png"), style: "[data-testid='assistant-settings'] .sticky, nextjs-portal { visibility: hidden !important; }" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.getByRole("region", { name: "Models & voice" }).screenshot({ path: testInfo.outputPath("ai-model-settings-mobile.png"), style: "[data-testid='assistant-settings'] .sticky, nextjs-portal { visibility: hidden !important; }" });
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
+  await expect(page.getByTestId("human-hologram")).toHaveAttribute("data-appearance", "male");
+  await expect(page.getByTestId("human-hologram")).toHaveAttribute("data-renderer", "webgl");
+  await page.screenshot({ path: testInfo.outputPath("human-hologram-male-mobile.png") });
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await expect.poll(() => page.getByTestId("human-hologram").locator("canvas").evaluate((canvas) => (canvas as HTMLCanvasElement).width >= canvas.clientWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("human-hologram-male-desktop.png") });
+});
+
+
+test("combined voice saves captions before Luna continues in the same chat", async ({ page }) => {
+  test.setTimeout(90000);
+  const { state } = await fixture(page); state.configuration.provider = "hybrid";
+  await syntheticMicrophone(page);
+  let typed = 0, conversation = "", voiceSaved = false, rejectSave = false;
+  const starts: string[] = [], ends: string[] = [], transcribes: string[] = [];
+  page.on("request", request => { if (request.url().endsWith("/transcribe")) transcribes.push(request.url()); });
+  await page.route("**/api/v1/ai-assistant/chat", route => {
+    const body = route.request().postDataJSON();
+    if (!typed) conversation = body.conversation_id;
+    else { expect(voiceSaved).toBe(true); expect(body.conversation_id).toBe(conversation); }
+    typed++;
+    return route.fulfill({ contentType:"text/event-stream", body: 'data: '+JSON.stringify({type:"text_delta",text:"Luna's typed reply "+typed})+'\n\ndata: '+JSON.stringify({type:"done",request_id:body.request_id})+'\n\n' });
+  });
+  await page.routeWebSocket("**/api/v1/ai-assistant/voice", socket => {
+    let emitted = false;
+    socket.onMessage(raw => {
+      const message = JSON.parse(String(raw));
+      if (message.type === "start") { starts.push(message.conversation_id); socket.send(JSON.stringify({type:"ready",conversation_id:message.conversation_id,max_session_seconds:600})); }
+      if (message.type === "audio" && !emitted) {
+        emitted = true; socket.send(JSON.stringify({type:"input_transcript",text:"My spoken question.",turn_id:"hybrid-voice-turn"}));
+        socket.send(JSON.stringify({type:"text_delta",text:"Gemini's spoken reply.",turn_id:"hybrid-voice-turn"}));
+      }
+      if (message.type === "end") {
+        if (rejectSave) { socket.close({code:1000,reason:"Save unavailable"}); return; }
+        ends.push(message.type); voiceSaved = true;
+        socket.send(JSON.stringify({type:"turn_complete",turn_id:"hybrid-voice-turn",turn:{id:"hybrid-voice-turn",user:"My spoken question.",assistant:"Gemini's spoken reply.",created_at:"2026-10-19T00:00:00Z"}}));
+        socket.send(JSON.stringify({type:"voice_saved",conversation_id:conversation})); socket.close({code:1000,reason:"Saved"});
+      }
+    });
+  });
+  await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
+  await page.getByLabel("Message Global Connects", {exact:true}).fill("My typed question.");
+  await page.getByRole("button",{name:"Send message",exact:true}).click();
+  await expect.poll(() => typed).toBe(1);
+  await page.getByRole("button",{name:"Start microphone",exact:true}).click();
+  await expect(page.getByRole("button",{name:"End voice conversation",exact:true})).toBeVisible();
+  await expect.poll(() => starts.length).toBe(1);
+  expect(starts[0]).toBe(conversation);
+  await page.getByLabel("Message Global Connects",{exact:true}).fill("Continue after my voice answer.");
+  await page.getByRole("button",{name:"Send message",exact:true}).click();
+  await expect.poll(() => typed).toBe(2);
+  expect(ends).toEqual(["end"]); expect(transcribes).toEqual([]);
+  await page.getByRole("button",{name:"Show conversation",exact:true}).click();
+  await expect(page.getByText("My spoken question.",{exact:true})).toBeVisible();
+  await expect(page.getByText("Gemini's spoken reply.",{exact:true})).toBeVisible();
+  await expect(page.getByText("Luna's typed reply 2",{exact:true})).toBeVisible();
+  rejectSave = true;
+  await page.getByRole("button",{name:"Start microphone",exact:true}).click();
+  await expect(page.getByRole("button",{name:"End voice conversation",exact:true})).toBeVisible();
+  await page.getByLabel("Message Global Connects",{exact:true}).fill("Keep this draft if saving fails.");
+  await page.getByRole("button",{name:"Send message",exact:true}).click();
+  await expect(page.getByRole("main",{name:"Global Connects AI workspace"}).getByRole("alert")).toContainText("Your typed draft is still here");
+  await expect(page.getByLabel("Message Global Connects",{exact:true})).toHaveValue("Keep this draft if saving fails.");
+  expect(typed).toBe(2);
+});
+
+test("superadmin can edit allowances, inspect current usage and retain limits after reload", async ({ page }, testInfo) => {
+  const { writes } = await fixture(page);
+  await page.goto("/settings/ai");
+  const limits = page.getByRole("region", { name: "Usage limits" });
+  await expect(limits).toBeVisible();
+  await expect(page.getByTestId("usage-voice_chats")).toHaveText("2 / 30");
+  await expect(limits).toContainText("Daily reset:");
+  await page.getByLabel("Voice chats per day", { exact: true }).fill("120");
+  await page.getByLabel("Maximum voice connection (minutes)", { exact: true }).fill("61");
+  await expect(page.getByRole("button", { name: "Save AI settings", exact: true })).toBeDisabled();
+  await page.getByLabel("Maximum voice connection (minutes)", { exact: true }).fill("25");
+  await page.getByLabel("Typed requests per day", { exact: true }).fill("500");
+  await page.getByLabel("Images per day", { exact: true }).fill("30");
+  await page.getByLabel("File uploads per day", { exact: true }).fill("150");
+  await page.getByLabel("Speech requests per day", { exact: true }).fill("600");
+  await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
+  await expect(page.getByTestId("usage-voice_chats")).toHaveText("2 / 120");
+  expect((writes[0].configuration as typeof configuration).usage_limits.voice_connection_minutes).toBe(25);
+  await page.reload();
+  await expect(page.getByLabel("Voice chats per day", { exact: true })).toHaveValue("120");
+  await expect(page.getByTestId("usage-typed_requests")).toHaveText("7 / 500");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await limits.scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("ai-usage-settings-mobile.png"), fullPage: true });
+});
+
+test("native voice preserves an audible first utterance while connecting and plays audio before captions", async ({ page }) => {
+  test.setTimeout(90000);
+  const { state } = await fixture(page); state.configuration.voice_model = "openai:gpt-realtime-2.1";
+  await syntheticMicrophone(page, true); // Speech on the second channel must survive mono downmixing.
+  const transcribes: string[] = []; let packets = 0, audiblePackets = 0;
+  let connect: () => void = () => { throw new Error("Voice socket is not ready"); };
+  let captions: () => void = () => { throw new Error("No audible input received"); };
+  page.on("request", (request) => { if (request.url().endsWith("/transcribe")) transcribes.push(request.url()); });
+  await page.routeWebSocket("**/api/v1/ai-assistant/voice", (socket) => {
+    socket.onMessage((raw) => {
+      const value = JSON.parse(String(raw));
+      if (value.type === "start") connect = () => socket.send(JSON.stringify({ type: "ready", conversation_id: value.conversation_id, max_session_seconds: 600 }));
+      if (value.type !== "audio") return;
+      packets++;
+      const input = Buffer.from(value.data, "base64");
+      expect(input.length).toBe(3200); // 100 ms of mono PCM16 at 16 kHz.
+      let energy = 0;
+      for (let index = 0; index < input.length; index += 2) energy += (input.readInt16LE(index) / 32768) ** 2;
+      if (Math.sqrt(energy / (input.length / 2)) < .02 || ++audiblePackets !== 1) return;
+      const pcm = Buffer.alloc(24000 * 2 * 2);
+      for (let sample = 0; sample < pcm.length / 2; sample++) pcm.writeInt16LE(Math.round(Math.sin(sample * Math.PI * 2 * 180 / 24000) * 14000), sample * 2);
+      socket.send(JSON.stringify({ type: "audio", data: pcm.toString("base64"), sample_rate: 24000, turn_id: "voice-turn" }));
+      captions = () => {
+        socket.send(JSON.stringify({ type: "input_transcript", text: "What is pending?", turn_id: "voice-turn" }));
+        socket.send(JSON.stringify({ type: "text_delta", text: "There are three pending documents.", turn_id: "voice-turn" }));
+      };
+    });
+  });
+  await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
+  await page.getByTestId("assistant-voice-status").evaluate((element) => {
+    // Observe the actual rendered level throughout the short audio reply. A
+    // caption assertion may resolve after playback has already finished.
+    const probe = window as unknown as { __nativePlaybackPeak: number };
+    probe.__nativePlaybackPeak = 0;
+    new MutationObserver(() => {
+      probe.__nativePlaybackPeak = Math.max(probe.__nativePlaybackPeak, Number((element as HTMLElement).style.getPropertyValue("--voice-level")));
+    }).observe(element, { attributes: true, attributeFilter: ["style"] });
+  });
+  await page.getByRole("button", { name: "Start microphone" }).click();
+  await page.evaluate(() => (window as unknown as { __voiceTest: { setVolume: (value: number) => void } }).__voiceTest.setVolume(.22));
+  await expect(page.getByTestId("assistant-voice-status")).toHaveAttribute("data-input-detected", "true");
+  expect(await page.evaluate(() => (window as unknown as { __voiceTest: { workletsCreated: () => number } }).__voiceTest.workletsCreated())).toBe(1);
+  await expect(page.getByTestId("assistant-voice-status")).toContainText("Connecting voice");
+  expect(packets).toBe(0);
+  await page.evaluate(() => (window as unknown as { __voiceTest: { setVolume: (value: number) => void } }).__voiceTest.setVolume(0));
+  connect();
+  await expect(page.getByRole("button", { name: "End voice conversation" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __nativePlaybackPeak: number }).__nativePlaybackPeak)).toBeGreaterThan(.1);
+  expect(audiblePackets).toBeGreaterThan(0);
+  await expect(page.getByText("There are three pending documents.", { exact: true })).not.toBeAttached();
+  captions();
+  await page.getByRole("button", { name: "Show conversation", exact: true }).click();
+  await expect(page.getByText("There are three pending documents.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "End voice conversation" }).click();
+  await expect(page.getByRole("button", { name: "Start microphone" })).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { __voiceTest: { tracksStopped: () => boolean } }).__voiceTest.tracksStopped())).toBe(true);
+  expect(packets).toBeGreaterThan(1);
+  expect(transcribes).toEqual([]);
+});
+
+test("voice lookup recovery replaces a partial reply, pauses input, then resumes with sources and speech", async ({ page }) => {
+  test.setTimeout(90000);
+  await fixture(page);
+  await syntheticMicrophone(page);
+  let packets = 0;
+  const textInputs: string[] = [];
+  let reset: () => void = () => { throw new Error("Synthetic socket is not ready"); };
+  let complete: () => void = () => { throw new Error("Synthetic socket is not ready"); };
+  await page.routeWebSocket("**/api/v1/ai-assistant/voice", (socket) => {
+    reset = () => socket.send(JSON.stringify({ type: "answer_reset", turn_id: "recovery-turn" }));
+    complete = () => {
+      const pcm = Buffer.alloc(24000 * 2 * 2);
+      for (let sample = 0; sample < pcm.length / 2; sample++) pcm.writeInt16LE(Math.round(Math.sin(sample * Math.PI * 2 * 180 / 24000) * 14000), sample * 2);
+      const source = { view: "passport_details", observed_at: "2026-10-18T00:00:00Z", completeness: "complete" };
+      socket.send(JSON.stringify({ type: "source", source, turn_id: "recovery-turn" }));
+      socket.send(JSON.stringify({ type: "text_delta", text: "Ada's saved email is ada@example.test.", turn_id: "recovery-turn" }));
+      socket.send(JSON.stringify({ type: "audio", data: pcm.toString("base64"), sample_rate: 24000, turn_id: "recovery-turn" }));
+      socket.send(JSON.stringify({ type: "turn_complete", turn_id: "recovery-turn", turn: { id: "recovery-turn", user: "Find Ada's saved contact", assistant: "Ada's saved email is ada@example.test.", created_at: "2026-10-18T00:00:00Z", sources: [source], images: [] } }));
+    };
+    socket.onMessage((raw) => {
+      const value = JSON.parse(String(raw));
+      if (value.type === "start") socket.send(JSON.stringify({ type: "ready", conversation_id: value.conversation_id, max_session_seconds: 600 }));
+      if (value.type === "text") textInputs.push(value.text);
+      if (value.type !== "audio" || ++packets !== 3) return;
+      socket.send(JSON.stringify({ type: "input_transcript", text: "Find Ada's saved contact", turn_id: "recovery-turn" }));
+      socket.send(JSON.stringify({ type: "text_delta", text: "An incomplete voice reply.", turn_id: "recovery-turn" }));
+    });
+  });
+  await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
+  await page.getByRole("button", { name: "Start microphone" }).click();
+  await page.getByRole("button", { name: "Show conversation", exact: true }).click();
+  await expect(page.getByText("An incomplete voice reply.", { exact: true })).toBeVisible();
+  reset();
+  await expect(page.getByRole("button", { name: "Stop response" })).toBeVisible();
+  await expect(page.getByText("An incomplete voice reply.", { exact: true })).not.toBeAttached();
+  const draft = page.getByRole("textbox", { name: "Message Global Connects" });
+  await draft.fill("Keep this draft while checking");
+  await draft.press("Enter");
+  await expect(draft).toHaveValue("Keep this draft while checking");
+  const pausedAt = packets;
+  await page.waitForTimeout(350); // Allow any capture packet already in flight to drain.
+  expect(packets).toBeLessThanOrEqual(pausedAt + 1);
+  expect(textInputs).toEqual([]);
+  complete();
+  await expect(page.getByText("Ada's saved email is ada@example.test.", { exact: true })).toBeVisible();
+  await expect(page.getByText("passport details", { exact: true })).toBeVisible();
+  await expect.poll(() => packets).toBeGreaterThan(pausedAt + 1);
+  await page.getByRole("button", { name: "End voice conversation" }).click();
+  expect(await page.evaluate(() => (window as unknown as { __voiceTest: { tracksStopped: () => boolean } }).__voiceTest.tracksStopped())).toBe(true);
+});

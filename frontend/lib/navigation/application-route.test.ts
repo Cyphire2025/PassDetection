@@ -23,10 +23,17 @@ describe("validated route boundary", () => {
   it("keeps the checked-in privacy allowlist aligned with actual page files", () => {
     function pages(directory: string, segments: string[] = []): string[] {
       return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-        if (entry.isDirectory()) return pages(resolve(directory, entry.name), entry.name.startsWith("(") ? segments : [...segments, entry.name]);
+        if (entry.isDirectory()) {
+          // Slots and route groups are filesystem organization. Same-level
+          // intercepts resolve to the canonical destination's URL.
+          const segment = entry.name.replace(/^\(\.\)/, "");
+          const next = entry.name.startsWith("@") || /^\([^)]*\)$/.test(segment)
+            ? segments : [...segments, segment];
+          return pages(resolve(directory, entry.name), next);
+        }
         return entry.name === "page.tsx" ? ["/" + segments.join("/")] : [];
       });
     }
-    expect([...templates].sort()).toEqual([...pages(resolve("app")), "unknown"].sort());
+    expect([...templates].sort()).toEqual([...new Set([...pages(resolve("app")), "unknown"])].sort());
   });
 });

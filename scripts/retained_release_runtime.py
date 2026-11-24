@@ -16,6 +16,7 @@ from mcp_direct_activate import clean_stop
 from mcp_direct_build import command
 from mcp_direct_containers import clone_payload
 from mcp_direct_release import bound_original
+from release_assistant_proxy_contract import PROXY_PATH, stage_assistant_proxy
 from release_code_update import environment
 from retained_release_contract import (
     ACTIVE,
@@ -73,6 +74,8 @@ class _RetainedRuntime(_RetainedHost):
     def proof(self, rows: dict[str, Any], revision: str, *, public: bool) -> None:
         self.wait_health(rows)
         backend = rows["backend"]["Id"]
+        if revision == self.revision and not public:
+            self.verify_assistant_transport(rows["backend"])
         code = "import json,urllib.request; print(json.dumps(json.load(urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready',timeout=20))))"
         wait_full_readiness(
             lambda: json.loads(command("docker", "exec", backend, "python", "-c", code)), revision
@@ -85,6 +88,8 @@ class _RetainedRuntime(_RetainedHost):
             "frontend_runtime_revision_changed",
         )
         if public:
+            if revision == self.revision:
+                self.verify_assistant_proxy(rows["nginx"])
             wait_full_readiness(
                 lambda: json.loads(
                     command(
@@ -138,6 +143,19 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             )
         self.retention()
 
+    def verify_assistant_proxy(self, proxy: dict[str, Any]) -> None:
+        source = (self.source / PROXY_PATH).read_text(encoding="utf-8")
+        if "/api/v1/ai-assistant/voice" in source:
+            command("docker", "exec", proxy["Id"], "nginx", "-t")
+            runtime = command("docker", "exec", proxy["Id"], "cat", "/etc/nginx/conf.d/default.conf")
+            require(stage_assistant_proxy(runtime, source) == runtime, "running_assistant_voice_proxy_missing")
+
+    def verify_assistant_transport(self, backend: dict[str, Any]) -> None:
+        if (self.source / "backend/app/infrastructure/bounded_websocket_protocol.py").is_file():
+            result = json.loads(command("docker", "exec", backend["Id"], "python",
+                                        "scripts/verify_assistant_transport.py", timeout=30))
+            require(result.get("status") == "passed", "assistant_transport_bounds_not_qualified")
+
     def candidate_environment(self, original: dict[str, Any]) -> dict[str, str]:
         result = runtime_environment(original, self.revision, schema=self.candidate_schema)
         name = original["Config"]["Labels"]["com.docker.compose.service"]
@@ -178,6 +196,12 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
                 (proxy / filename).write_text(
                     proxy_configuration(origin.read_text(), live, self.project)
                 )
+        default = proxy / "conf.d/default.conf"
+        inherited = default.read_text(encoding="utf-8")
+        rendered = stage_assistant_proxy(inherited, (self.source / PROXY_PATH).read_text(encoding="utf-8"))
+        if rendered != inherited:
+            default.write_text(rendered, encoding="utf-8")
+        require(default.read_text(encoding="utf-8") == rendered, "staged_proxy_content_changed")
         candidates = {}
         for name in sorted(ACTIVE):
             old = live[name]
@@ -218,6 +242,8 @@ for _name in (
     "start",
     "wait_health",
     "proof",
+    "verify_assistant_proxy",
+    "verify_assistant_transport",
     "candidate_environment",
     "create_candidate",
     "stage",

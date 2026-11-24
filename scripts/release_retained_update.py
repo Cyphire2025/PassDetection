@@ -45,6 +45,9 @@ from mcp_direct_state import INFRASTRUCTURE as INFRASTRUCTURE  # noqa: E402
 from mcp_direct_state import WORKERS as WORKERS  # noqa: E402
 from mcp_direct_state import private_json as private_json  # noqa: E402
 from release_artifacts import verify_manifest as verify_manifest  # noqa: E402
+from release_assistant_proxy_contract import PROXY_PATH as PROXY_PATH  # noqa: E402
+from release_assistant_proxy_contract import stage_assistant_proxy as stage_assistant_proxy  # noqa: E402
+from release_assistant_proxy_contract import validate_assistant_proxy as validate_assistant_proxy  # noqa: E402
 from release_code_update import COMPATIBILITY_PATHS as COMPATIBILITY_PATHS  # noqa: E402
 from release_code_update import environment as environment  # noqa: E402
 from release_code_update import task_contract as task_contract  # noqa: E402

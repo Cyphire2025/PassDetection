@@ -50,6 +50,8 @@ export function useFreshContactChallenge(state: FreshDraftState, email: string, 
       const result = await state.api.requestCode(contact.email, contact.phone, signal);
       if (!isCurrent() || signal.aborted) return;
       const receivedAt = Date.now();
+      await state.syncContactRevision(signal);
+      if (!isCurrent() || signal.aborted) return;
       setNow(receivedAt);
       setChallenge({ id: result.challenge_id, ...contact,
         expiresAt: receivedAt + result.expires_in_seconds * 1000,

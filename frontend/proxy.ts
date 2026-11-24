@@ -13,6 +13,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 export const PROTECTED_PREFIXES = [
+  "/ai",
   "/coordinator",
   "/tour-scanner",
   "/dashboard",
@@ -114,7 +115,10 @@ export function proxy(request: NextRequest): NextResponse {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
   const response = NextResponse.next({ request: { headers: requestHeaders } });
-  if (pathname === "/ai") {
+  // The intercepted AI workspace keeps its dashboard document. Its microphone
+  // policy must therefore permit same-origin audio before the dialog opens.
+  // Browser permission still requires the user's explicit microphone gesture.
+  if (pathname === "/ai" || isProtected) {
     response.headers.set("Permissions-Policy", "camera=(self), microphone=(self), geolocation=()");
   }
   return withContentSecurityPolicy(response, contentSecurityPolicy);

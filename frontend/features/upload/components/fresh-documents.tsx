@@ -8,6 +8,11 @@ import { configuredPassportPages, type getUploadFlowSettings } from "../services
 import { DOCUMENT_PREVIEW_ORDER, documentSide } from "../services/document-preview-order";
 import { useDraftDocumentUpload } from "../hooks/use-draft-document-upload";
 import { DraftDocumentCard } from "./draft-document-card";
+import { InstructionLanguageSelector } from "./instruction-language-selector";
+import { VisaPhotoGuidelines } from "./visa-photo-guidelines";
+import { PassportPageSample } from "./passport-upload-page";
+import { useInstructionLanguage } from "../hooks/use-instruction-language";
+import { UPLOAD_INSTRUCTIONS } from "../config/instruction-translations";
 
 const SmartCamera = dynamic(() => import("./smart-camera").then((module) => module.SmartCamera), { ssr: false });
 const VisaCamera = dynamic(() => import("./visa-selfie-camera").then((module) => module.VisaSelfieCamera), { ssr: false });
@@ -20,17 +25,23 @@ export function FreshDocuments({ state, settings, token, sessionId, savedDocumen
     void upload(side, file, source).finally(() => onUploadBusyChange?.(false));
   };
   const { uploadConfig: config } = settings;
+  const instructions = useInstructionLanguage(token, config);
+  const { language } = instructions;
+  const copy = UPLOAD_INSTRUCTIONS[language], direction = language === "ur" ? "rtl" : "ltr";
   const pages: DraftSide[] = settings.passportEnabled ? configuredPassportPages(config, state.payload?.collection?.acquisition_mode ?? "file", settings.allowFilesFromDevice) : [];
   const enabled: DraftSide[] = [...pages, ...(settings.selfieEnabled ? ["photo" as const] : [])];
   const savedFor = (side: DraftSide) => savedDocuments.find((image) => documentSide(image.label) === side);
   const sides = DOCUMENT_PREVIEW_ORDER.filter((side) => enabled.includes(side) || (side !== "cover" && side !== "back_cover" && savedFor(side)));
   return <section aria-label="Your documents" className="space-y-4">
+    {sides.length > 0 && <InstructionLanguageSelector instructions={instructions} />}
+    {pages.length > 0 && <p lang={language} dir={direction} className="text-sm leading-6 text-slate-600">{copy.passportIntro}</p>}
     {sides.map((side) => {
       const editable = enabled.includes(side) && (!editableSides || editableSides.includes(side));
       const canCamera = editable && (side === "photo" ? config.visa_photo_live_capture : config.passport_live_scan && (side === "front" || side === "back"));
       const canFile = editable && (side === "photo" ? config.visa_photo_upload : settings.allowFilesFromDevice);
       const status = documentProcessingStatus(side, state, pendingSide, config.passport_ecr_enabled);
-      return <DraftDocumentCard key={side} side={side} label={documentLabel(side)} state={state} selected={selected[side]} saved={savedFor(side)} status={status} canFile={canFile} canCamera={canCamera} disabled={state.pending || preparing} onUpload={(file) => startUpload(side, file, "file")} onCamera={() => setCamera(side as "front" | "back" | "photo")} />;
+      const guidance = side === "photo" ? <>{canFile && <p lang={language} dir={direction} className="rounded-xl bg-amber-50 p-3 text-sm leading-6 text-amber-950">{copy.visaWarning}</p>}<VisaPhotoGuidelines language={language} /></> : <><p lang={language} dir={direction} className="text-sm leading-6 text-slate-500">{copy[side]}</p><details className="text-sm text-slate-600"><summary className="cursor-pointer">View page sample</summary><div className="mt-3"><PassportPageSample page={side} /></div></details></>;
+      return <DraftDocumentCard key={side} side={side} label={documentLabel(side)} state={state} selected={selected[side]} saved={savedFor(side)} status={status} canFile={canFile} canCamera={canCamera} disabled={state.pending || preparing} guidance={guidance} onUpload={(file) => startUpload(side, file, "file")} onCamera={() => setCamera(side as "front" | "back" | "photo")} />;
     })}
     {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
     {camera === "photo" ? <VisaCamera onCapture={(file) => startUpload("photo", file, "camera")} onCancel={() => setCamera(undefined)} /> : camera && <SmartCamera pageSide={camera} allowFileFallback={settings.allowFilesFromDevice} onCapture={(file) => startUpload(camera, file, "camera")} onCancel={() => setCamera(undefined)} />}

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, ShieldAlert } from "lucide-react";
@@ -14,10 +14,15 @@ import { selectUser, useAuthStore } from "@/stores/auth.store";
 
 export function RouteCapabilityBoundary({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  // A route-intercepted AI dialog preserves this already-authorized dashboard
+  // underneath it. The dialog and every AI request enforce their own live grant.
+  const [underlayPath, setUnderlayPath] = useState(pathname);
+  if (pathname !== "/ai" && underlayPath !== pathname) setUnderlayPath(pathname);
+  const authorityPath = pathname === "/ai" ? underlayPath : pathname;
   const router = useRouter();
   const user = useAuthStore(selectUser);
-  const capability = resolveRouteCapability(pathname);
-  const canAccess = canAccessApplicationPath(user, pathname);
+  const capability = resolveRouteCapability(authorityPath);
+  const canAccess = canAccessApplicationPath(user, authorityPath);
   const returnPath = user ? firstAuthorizedPath(user) : "/login";
 
   useEffect(() => {

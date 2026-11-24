@@ -8,6 +8,7 @@ import { Button } from "@/components/ui";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { AccessLevelSwitcher, canSwitchAccessLevel } from "@/features/auth/components/access-level-switcher";
 import { NotificationBell } from "@/features/notifications/components/notification-bell";
+import { AssistantLauncher } from "@/features/ai/components/assistant-launcher";
 import { GlobalSearch } from "@/features/search/components/global-search";
 import { truncate } from "@/lib/utils/format";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
@@ -68,6 +69,7 @@ export function Header({
 
       {/* Right actions */}
       <div className="flex items-center gap-2">
+        <AssistantLauncher />
         <NotificationBell />
         {canSwitchAccessLevel(user) ? <AccessLevelSwitcher /> : user && (
           <div className="flex items-center gap-2.5 px-2 py-1.5">

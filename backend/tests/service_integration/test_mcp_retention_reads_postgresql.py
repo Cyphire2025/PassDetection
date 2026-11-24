@@ -43,6 +43,7 @@ from app.infrastructure.database.models import (
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.api.v1.routes.admin import get_group_passport_retention
 from tests.integration.test_mcp_operations import seed_identity
+from tests.mcp_authority_assertions import assert_external_read_authority
 from tests.postgresql_schema import create_isolated_postgresql_tables
 
 pytestmark = [
@@ -268,7 +269,8 @@ async def test_postgresql_only_four_source_scalars_no_private_hydration_or_effec
                 event.remove(model, "load", forbidden)
                 event.remove(model, "refresh", forbidden)
         business = [s for s in statements if "from client_groups" in s]
-        assert len(statements) == 4 and len(business) == 1
+        assert_external_read_authority(statements, row_locks=True)
+        assert len(statements) == 5 and len(business) == 1
         assert business[0].split("\nfrom")[0].strip() == (
             "select client_groups.id, client_groups.agency_id, client_groups.passport_purge_at, "
             "client_groups.passport_retention_days_applied"

@@ -45,6 +45,7 @@ async function installFixture(page: Page, conflict = false) {
       status: "authenticated", user, token_type: "bearer", access_token_expires_at: "2099-01-01T00:00:00Z",
     });
     if (path === "/api/v1/auth/me") return json(route, user);
+    if (path === "/api/v1/ai-assistant/availability") return json(route, { enabled: false, allowed: false });
     if (path === "/api/v1/notifications/feed") return json(route, { items: [], unread_count: 0, next_cursor: null });
     if (path.startsWith("/api/v1/telemetry")) return json(route, {});
     if (path === `/api/v1/passports/${id}`) return json(route, passport);

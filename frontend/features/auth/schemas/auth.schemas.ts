@@ -6,7 +6,7 @@
  * — shared between react-hook-form and any server-side validation.
  */
 
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 export const loginSchema = z.object({
   email: z

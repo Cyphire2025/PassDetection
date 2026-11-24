@@ -34,6 +34,7 @@ from app.infrastructure.repositories.email_summary_repository import (
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.api.v1.routes import email_integration_activity, email_integration_connections
 from tests.integration.test_mcp_operations import operations_fixture as operations_fixture
+from tests.mcp_authority_assertions import assert_external_read_authority
 from tests.mcp_email_overview_fixtures import PER_COHORT, seed_email_overview
 
 
@@ -89,7 +90,8 @@ async def test_seven_scalar_counts_no_orm_content_or_ciphertexts(overview):
             event.remove(model, "refresh", loaded)
     business = [sql for sql in statements if "from email_" in sql]
     assert len(business) == 7 and all(sql.startswith("select count(") for sql in business)
-    assert len(statements) == 11 and not hydrated
+    assert_external_read_authority(statements)
+    assert len(statements) == 12 and not hydrated
     projections = " ".join(sql.split(" from ")[0].split("\nfrom ")[0] for sql in business)
     assert not any(word in projections for word in ("ciphertext", "body", "subject", "match_evidence", "storage", "email_address"))
     assert all("owner_user_id =" in sql for sql in business)

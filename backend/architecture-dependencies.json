@@ -232,6 +232,24 @@
         "app.infrastructure.storage.mcp_artifact_storage.MCPArtifactStorage"
       ]
     },
+    "app/application/mcp/assistant_authority.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "First-party assistant authority is bound to an authenticated dashboard session and retained only for existing operation/artifact foreign keys. The caller-owned transaction locks current identity, session revocation and validated AI settings, materializes one private authority idempotently, and records its audit without changing external grants or global MCP permissions.",
+      "imports": [
+        "app.infrastructure.assistant.settings_store",
+        "app.infrastructure.assistant.settings_store.SETTINGS_KEY",
+        "app.infrastructure.assistant.settings_store.load_snapshot",
+        "app.infrastructure.database.dashboard_session_models",
+        "app.infrastructure.database.dashboard_session_models.DashboardSessionModel",
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPGrantModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PlatformSettingModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
     "app/application/mcp/authorization.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",

@@ -209,6 +209,7 @@ export async function setupWorkspace(
       path = url.pathname,
       method = request.method();
     if (path.endsWith("/auth/me")) return json(route, user);
+    if (path === "/api/v1/ai-assistant/availability") return json(route, { enabled: false, allowed: false });
     if (path.endsWith("/auth/refresh"))
       return json(route, {
         status: "authenticated",

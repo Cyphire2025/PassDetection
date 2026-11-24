@@ -28,6 +28,7 @@ from app.application.mcp.credentials import (
     utc,
 )
 from app.core.config.settings import Settings
+from app.domain.assistant_identity import ASSISTANT_CLIENT_ID
 from app.domain.mcp_policy import validate_capabilities
 from app.domain.mcp_section_permissions import WRITE_CAPABILITIES
 from app.infrastructure.database.mcp_models import (
@@ -108,13 +109,24 @@ class MCPAuthorizationService:
             raise MCPAuthError()
 
     async def require_grant(self, grant_id: uuid.UUID, *, lock: bool = False) -> MCPGrantModel:
+        # Private jobs match browser calls and logout: AI -> control -> identity
+        # -> dashboard session -> grant. The immutable discriminator is checked
+        # again under the grant barrier; external grant lock order is unchanged.
+        identity = (await self.session.execute(select(
+            MCPGrantModel.client_id, MCPGrantModel.user_id, MCPGrantModel.security_version,
+        ).where(MCPGrantModel.id == grant_id))).one_or_none()
+        internal = identity is not None and identity.client_id == ASSISTANT_CLIENT_ID
+        if internal and identity is not None:
+            from app.application.mcp.assistant_authority import lock_assistant_authority
+
+            await lock_assistant_authority(self.session, self.settings, identity.user_id, identity.security_version, grant_id)
         await self.require_enabled(lock=lock)
         statement = (
             select(MCPGrantModel)
             .where(MCPGrantModel.id == grant_id)
             .execution_options(populate_existing=True)
         )
-        if lock:
+        if lock or internal:
             statement = statement.with_for_update()
         grant = await self.session.scalar(statement)
         if (
@@ -127,7 +139,16 @@ class MCPAuthorizationService:
             # Keep issued credentials and their consumption state intact so the
             # administrator can resume this connection without affecting others.
             raise MCPAuthError("access_denied", 403)
-        self.validate_client(grant.client_id)
+        if internal != (grant.client_id == ASSISTANT_CLIENT_ID):
+            raise MCPAuthError()
+        if grant.client_id == ASSISTANT_CLIENT_ID:
+            from app.application.mcp.assistant_authority import require_assistant_grant
+
+            if not internal or identity is None or (grant.user_id, grant.security_version) != (identity.user_id, identity.security_version):
+                raise MCPAuthError()
+            await require_assistant_grant(self.session, self.settings, grant, lock=lock)
+        else:
+            self.validate_client(grant.client_id)
         self.validate_resource(grant.resource)
         await self.require_identity(grant.user_id, grant.security_version, lock=lock)
         return grant
@@ -150,6 +171,8 @@ class MCPAuthorizationService:
         allowed_read_sections: list[str] | None = None,
         allowed_write_sections: list[str] | None = None,
     ) -> str:
+        if client_id == ASSISTANT_CLIENT_ID:
+            raise MCPAuthError("invalid_client", 400)
         await self.require_enabled()
         await validate_authorization_client(self.settings.mcp, client_id, redirect_uri)
         self.validate_resource(resource)
@@ -215,6 +238,8 @@ class MCPAuthorizationService:
         redirect_uri: str,
         resource: str,
     ) -> dict[str, str | int]:
+        if client_id == ASSISTANT_CLIENT_ID:
+            raise MCPAuthError("invalid_client", 400)
         await validate_authorization_client(self.settings.mcp, client_id, redirect_uri)
         self.validate_resource(resource)
         code_row = await self.session.scalar(
@@ -250,6 +275,8 @@ class MCPAuthorizationService:
         return await self.issue_pair(grant, now)
 
     async def refresh(self, *, token: str, client_id: str, resource: str) -> dict[str, str | int]:
+        if client_id == ASSISTANT_CLIENT_ID:
+            raise MCPAuthError("invalid_client", 400)
         self.validate_client(client_id)
         self.validate_resource(resource)
         token_row = await self.session.scalar(
@@ -283,6 +310,8 @@ class MCPAuthorizationService:
         return await self.issue_pair(grant, now)
 
     async def issue_pair(self, grant: MCPGrantModel, now: datetime) -> dict[str, str | int]:
+        if grant.client_id == ASSISTANT_CLIENT_ID:
+            raise MCPAuthError("invalid_client", 400)
         access, refresh = new_credential("access"), new_credential("refresh")
         expires = min(now + timedelta(minutes=15), utc(grant.expires_at))
         for raw, kind, expiry in (

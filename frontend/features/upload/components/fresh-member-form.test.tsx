@@ -27,7 +27,18 @@ beforeEach(() => {
   api.start.mockImplementation(async () => snapshot()); api.read.mockImplementation(async () => snapshot());
   api.save.mockImplementation(async (payload: FreshPayload) => { server = { ...server, ...payload, revision: server.revision + 1 }; return snapshot(); });
   api.upload.mockImplementation(async () => { server = { ...server, revision: server.revision + 1, documents: [{ id: "replacement", side: "front", state: "ready" }, server.documents[1]] }; return snapshot(); });
-  api.complete.mockImplementation(async () => { server.status = "submitted"; return { source_submission_id: "source", status: "submitted" }; });
+  api.complete.mockImplementation(async (revision: number) => {
+    if (revision !== server.revision) throw { status: 409, message: "This draft changed. Review it before submitting." };
+    server.status = "submitted"; return { source_submission_id: "source", status: "submitted" };
+  });
+  api.requestCode.mockImplementation(async () => {
+    server.revision++;
+    return { challenge_id: "contact-challenge", expires_in_seconds: 300, resend_after_seconds: 30 };
+  });
+  api.verifyCode.mockImplementation(async () => {
+    server.revision++; server.phone_verification_id = "fresh-proof"; server.phone_verification_expires_at = "2099-01-01";
+    return { phone_verification_id: "fresh-proof", phone_number: "+919999999999", expires_in_seconds: 3600 };
+  });
   api.document.mockResolvedValue(new Blob(["saved"], { type: "image/jpeg" }));
   api.activity.mockResolvedValue({ images_present: true, presence_recorded: true, heartbeat_after_seconds: 60 });
   api.discard.mockResolvedValue(undefined);

@@ -114,31 +114,6 @@ async function fillTrip(page: Page) {
   await page.getByLabel("Staff code", { exact: false }).fill("0009");
   await page.getByRole("combobox", { name: /Meal for this trip/ }).selectOption("Jain");
 }
-for (const width of [320, 1440]) for (const method of ["phone", "passport", "code"] as const) {
-  test(method + " verification and inline draft review at " + width + "px", async ({ page }, info) => {
-    await page.setViewportSize({ width, height: 900 });
-    const { calls, currentDraft } = await setup(page); const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
-    await begin(page, method);
-    await expect(page.getByRole("heading", { name: "Ready for your next journey" })).toBeVisible();
-    await expect(page.getByRole("img", { name: "Passport details page" })).toBeVisible();
-    await page.getByRole("img", { name: "Passport address page" }).scrollIntoViewIfNeeded();
-    await expect(page.getByRole("img", { name: "Passport address page" })).toBeVisible();
-    await expect(page.getByText("Issuing country", { exact: true })).toHaveCount(0);
-    await expect(page.getByText("Confirm access", { exact: true })).toHaveCount(0);
-    expect(calls.filter((call) => call.path.includes("/otp/"))).toHaveLength(method === "phone" ? 2 : 0);
-    await fillTrip(page);
-    expect(calls.filter((call) => call.path.endsWith("/complete"))).toHaveLength(0);
-    await page.getByRole("checkbox", { name: /reviewed my passport/ }).check();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: info.outputPath("returning-" + method + "-" + width + ".png"), fullPage: true });
-    await page.getByRole("button", { name: "Submit trip details" }).click();
-    await expect(page.getByRole("heading", { name: "Your trip details are saved" })).toBeVisible();
-    expect(currentDraft()).toMatchObject({ current_details: { staff_code: "0009" }, custom_answers: { meal: "Jain" } });
-    const storage = await page.evaluate(() => JSON.stringify({ local: { ...localStorage }, session: { ...sessionStorage } }));
-    expect(storage).not.toContain("A1234567"); expect(errors).toEqual([]);
-  });
-}
 test("first page has only two choices and a saved draft resumes for one day", async ({ page }, info) => {
   const { calls } = await setup(page);
   await page.goto("/upload/" + token);

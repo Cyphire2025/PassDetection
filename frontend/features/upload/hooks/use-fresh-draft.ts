@@ -88,6 +88,13 @@ export function useFreshDraft(token: string, member: FreshMemberResume, initial:
     await save(signal); const base = values.current; const view = await api.read(signal);
     if (!signal.aborted) adopt(view, base);
   }), [serialized, save, api, adopt]);
+  const syncContactRevision = useCallback(async (signal: AbortSignal) => {
+    const base = current.current!, view = await api.read(signal);
+    signal.throwIfAborted();
+    if (view.id !== base.id || view.status !== "active" || view.revision < base.revision) throw new Error("This draft changed. Reopen it before continuing.");
+    reconcileFresh(freshPayload(base), values.current!, freshPayload(view));
+    adopt(view, freshPayload(base));
+  }, [api, adopt]);
   const discard = useDraftImageLifecycle(current, draft, api, cancel, resume, `${token}:${member.sessionId}`, refresh);
   useDraftPolling(draftChecksPending(draft), refresh, setError, draft?.documents.map((item) => item.id).join(","));
   const upload = (side: DraftSide, file: File) => serialized(async (signal) => {
@@ -113,6 +120,6 @@ export function useFreshDraft(token: string, member: FreshMemberResume, initial:
     if (view && !signal.aborted) { adopt(view, base); retryUpload.current = null; }
   }, true);
   const retry = () => { if (current.current) void refresh().catch(() => undefined); else { setPending(true); setError(undefined); setAttempt((value) => value + 1); } };
-  return { api, draft, payload, pending, dirty, error, update, collection, flush, refresh, retry, upload, complete, leave, serialized };
+  return { api, draft, payload, pending, dirty, error, update, collection, flush, refresh, syncContactRevision, retry, upload, complete, leave, serialized };
 }
 export type FreshDraftState = ReturnType<typeof useFreshDraft>;

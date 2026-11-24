@@ -1,5 +1,7 @@
 /** Liquid sculpture shaders adapted from Sculpture Hero by guglielmogiannattasio.it, supplied via 21st.dev. */
 
+import { STATE_MOTION } from './state-motion';
+
 const NOISE = `
 float hash(vec2 p){ p = fract(p*vec2(123.34,456.21)); p += dot(p,p+45.32); return fract(p.x*p.y); }
 float vnoise(vec2 p){ vec2 i=floor(p); vec2 f=fract(p); vec2 u=f*f*f*(f*(f*6.0-15.0)+10.0);
@@ -29,6 +31,15 @@ out vec2 vUv;
 void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.0,1.0); }
 `
 
+const AMBIENT_FS = `#version 300 es
+precision highp float;
+in vec2 vUv;
+out vec4 o;
+uniform float uTime;
+${NOISE}
+void main(){o=vec4(ambientField(vUv,uTime),0.0,1.0);}
+`;
+
 /* Flow map (cursor wake). RGBA8: velocity encoded around 128, energy in B. */
 const FLOW_FS = `#version 300 es
 precision highp float;
@@ -38,6 +49,9 @@ uniform sampler2D uPrev;
 uniform vec2 uTexel;
 uniform vec2 uMouse;
 uniform vec2 uVel;
+uniform vec2 uPointer;
+uniform vec2 uPointerVel;
+uniform float uPointerPresence;
 uniform vec2 uSize;
 uniform float uRadius;
 uniform float uPresence;
@@ -56,6 +70,10 @@ void main(){
   float sp = clamp(length(uVel)*2.5, 0.0, 1.0);
   v += uVel*f*0.22;
   p = max(p, f*sp);
+  vec2 pd = (vUv-uPointer)*uSize;
+  float pf = exp(-dot(pd,pd)/(uRadius*uRadius*.58))*uPointerPresence;
+  v += uPointerVel*pf*.19;
+  p = max(p,pf*clamp(length(uPointerVel)*2.5,0.0,1.0));
   v *= uDecay;
   p *= uDecay;
   v = sign(v)*max(abs(v)-1.2/127.0, 0.0);
@@ -83,6 +101,8 @@ uniform float uReturn;
 uniform float uTime;
 uniform float uDt;
 uniform float uIntro;
+uniform vec2 uPointer;
+uniform float uPointerPresence;
 ${NOISE}
 vec2 curl(vec2 p){
   const float e = 0.35;
@@ -121,6 +141,12 @@ void main(){
   vec2 q = p*0.0095 + vec2(uTime*0.35, -uTime*0.2);
   vec2 c = curl(q) + 0.5*curl(q*2.3 + 7.1);
   acc += c*(e*1.2*uSpread + uIntro*1.5)*uTurb*light;
+  // A real pointer remains independent of the voice-driven figure eight.
+  vec2 pd = p-uPointer;
+  float pf = exp(-dot(pd,pd)/(uRadius*uRadius*.58))*uPointerPresence;
+  vec2 pn = pd*inversesqrt(dot(pd,pd)+16.0);
+  acc += (pn*1.35+vec2(-pn.y,pn.x)*.7)*pf*uSpread*light;
+  acc += c*pf*.6*uTurb;
   // elastic return home
   float k = (0.006 + 0.02*uReturn)*(0.65+sd*0.7)*(1.0 - uIntro*0.75);
   acc -= off*k;
@@ -142,6 +168,7 @@ uniform sampler2D uHome;
 uniform sampler2D uCol;
 uniform sampler2D uFlow;
 uniform int uTexW;
+uniform int uIdleStride;
 uniform vec4 uRect;
 uniform vec2 uRes;
 uniform vec2 uMouse;
@@ -154,34 +181,150 @@ uniform float uStreak;
 uniform float uIntroVis;
 uniform float uRest;
 uniform vec3 uTint;
+uniform float uReply;
+uniform float uReveal;
+uniform vec2 uRevealSize;
+uniform float uDark;
+uniform vec2 uPointer;
+uniform vec2 uPointerVel;
+uniform float uPointerPresence;
+uniform sampler2D uMorphBefore;
+uniform sampler2D uAmbientFlow;
+uniform sampler2D uMorphAfter;
+uniform float uMorph;
+uniform float uMorphMix;
+uniform vec2 uMorphSize;
 out vec2 vLocal;
 out float vHalfLen;
 out float vR;
 out vec3 vCol;
 out float vA;
+${STATE_MOTION}
 ${NOISE}
 ${ENERGY}
+// A rounded rectangle parameterized by arc length keeps the original material
+// evenly spread across all four edges, including the corners.
+vec4 boundary(float distance, vec2 size, float radius){
+  vec2 halfSize = size*.5;
+  float w = max(0.0, size.x-2.0*radius);
+  float h = max(0.0, size.y-2.0*radius);
+  float arc = 1.57079632679*radius;
+  float side = w+h+2.0*arc;
+  float d = mod(distance, side*2.0);
+  bool opposite = d >= side;
+  d = mod(d, side);
+  vec2 point;
+  vec2 normal;
+  if(d < w){ point = vec2(-halfSize.x+radius+d, -halfSize.y); normal = vec2(0.0,-1.0); }
+  else if(d < w+arc){
+    float angle = -1.57079632679+(d-w)/max(radius,.01);
+    normal = vec2(cos(angle),sin(angle));
+    point = vec2(halfSize.x-radius,-halfSize.y+radius)+normal*radius;
+  } else if(d < w+arc+h){ point = vec2(halfSize.x,-halfSize.y+radius+d-w-arc); normal = vec2(1.0,0.0); }
+  else {
+    float angle = (d-w-arc-h)/max(radius,.01);
+    normal = vec2(cos(angle),sin(angle));
+    point = vec2(halfSize.x-radius,halfSize.y-radius)+normal*radius;
+  }
+  if(opposite){ point = -point; normal = -normal; }
+  return vec4(point,normal);
+}
 void main(){
-  int id = gl_InstanceID;
+  int id = gl_InstanceID*uIdleStride;
   ivec2 ij = ivec2(id % uTexW, id / uTexW);
   vec4 hm = texelFetch(uHome, ij, 0);
   vec4 st = texelFetch(uState, ij, 0);
   vec4 cl = texelFetch(uCol, ij, 0);
 
   float wakeE = texture(uFlow, hm.xy).b;
-  float E = energyAt(hm.xy*uRect.zw, uMouse, uRadius, uPresence, wakeE);
+  float E = max(energyAt(hm.xy*uRect.zw, uMouse, uRadius, uPresence, wakeE),
+    energyAt(hm.xy*uRect.zw,uPointer-uRect.xy,uRadius*.76,uPointerPresence,0.0));
   float lift = smoothstep(0.35, 2.5, length(st.xy));
-  float a = max(max(E, lift), max(uRest, 1.0-uIntroVis));
+  float looseGrain = uIdleStride > 1 ? 1.0 : step(0.982, hm.z);
+  float idle = looseGrain*min(0.3, uAmbient*0.27);
+  float a = max(max(E, lift), max(max(uRest, idle), 1.0-uIntroVis));
+  a = max(a, smoothstep(0.0,.14,uReveal));
+  a = max(a,uMorph);
   if(a < 0.01 || hm.w <= 0.0){ gl_Position = vec4(2.0,2.0,2.0,1.0); return; }
 
   vec2 base = uRect.xy + hm.xy*uRect.zw + st.xy;
-  base -= ambientField(hm.xy, uTime)*10.0*uAmbient;
+  base -= texture(uAmbientFlow,hm.xy).xy*18.0*uAmbient;
+  // Different seeds give the loose grains their own slow orbit. The material
+  // stays horizontal and breathes without pretending that the microphone is on.
+  float loosen = looseGrain*(1.0-E)*(1.0-uReveal);
+  base += vec2(sin(hm.z*1537.0+uTime*.75), cos(hm.z*971.0+uTime*.61))
+    *(4.0+hm.w*8.0)*uAmbient*loosen;
+  if(uMorph > 0.0){
+    vec4 target=mix(texelFetch(uMorphBefore,ij,0),texelFetch(uMorphAfter,ij,0),uMorphMix);
+    float yaw=sin(uTime*.26)*.13;
+    vec2 shaped=uRes*.5+vec2(target.x*cos(yaw)+target.z*sin(yaw),target.y)*uMorphSize;
+    float talking=max(0.0,1.0-abs(uPhase-3.0))*uVoice;
+    shaped.y+=target.w*talking*uMorphSize.y*.19;
+    shaped.x+=sin(hm.z*51.0+uTime*.5)*1.1;
+    shaped.y+=cos(hm.z*37.0+uTime*.4)*1.0;
+    vec2 delta=shaped-uPointer;
+    float fall=exp(-dot(delta,delta)/(uRadius*uRadius*.4))*uPointerPresence;
+    shaped+=delta*inversesqrt(dot(delta,delta)+64.0)*fall*15.0;
+    base=mix(base,shaped,uMorph);
+  }
+  base-=stateMotion((base-uRect.xy)/uRect.zw,uTime);
+  if(uReveal > 0.0){
+    vec2 extent = max(vec2(1.0), uRevealSize*uReveal);
+    float radius = min(13.0,min(extent.x,extent.y)*.25);
+    // hm.z and home UVs belong to each existing sculpture particle. No border
+    // emitter, replacement buffer or extra instances are created for the reveal.
+    float seed = hm.z;
+    float layer = hash(hm.xy*371.0+seed);
+    float strand=floor(layer*7.0);
+    float band=clamp(min(uRevealSize.x,uRevealSize.y)*.14,20.0,55.0);
+    float depth=8.0+strand*band/6.0;
+    // Travel on the OUTER lane's arc length. Offsetting an inner path made the
+    // corners unnaturally fast and sparse, especially in the outer layers.
+    vec2 laneSize = extent+vec2(depth*2.0);
+    float laneRadius = radius+depth;
+    float perimeter = 2.0*(laneSize.x+laneSize.y-4.0*laneRadius)+6.28318530718*laneRadius;
+    float stream = hash(hm.xy*187.0+seed*7.0);
+    float direction = stream < .5 ? -1.0 : 1.0;
+    float travel = seed*perimeter+uTime*direction*(8.0+stream*10.0)
+      + sin(seed*197.0+uTime*.38)*7.0;
+    vec4 edge = boundary(travel,laneSize,laneRadius);
+    vec2 tangent = vec2(-edge.w,edge.z);
+    float phase=travel/perimeter*6.28318530718;
+    float weave=sin(phase*5.0+strand*1.7-uTime*.4)*7.0
+      +sin(phase*9.0-strand*.83+uTime*.25)*3.5;
+    float knot=pow(.5+.5*sin(phase*3.0+strand+uTime*.23),9.0);
+    float orbit=seed*331.0+uTime*(.65+stream*.45);
+    // Fine crossing filaments open into moving knots and small drifting eddies.
+    float fibre=(fract(layer*7.0)-.5)*(1.3+knot*7.0);
+    vec2 eddy=tangent*cos(orbit)*(1.0+knot*4.0)+edge.zw*(weave+fibre+sin(orbit)*knot*3.0);
+    // Voice lifts local folds without turning the entire cloud into a rigid belt.
+    eddy += edge.zw*sin(travel*.025-uTime*1.2)*(1.0+uVoice*7.0);
+    vec2 target = uRes*.5+edge.xy+eddy;
+    vec2 pointerDelta = target-uPointer;
+    float pointerFall = exp(-dot(pointerDelta,pointerDelta)/(uRadius*uRadius*.5))*uPointerPresence;
+    vec2 pointerNormal = pointerDelta*inversesqrt(dot(pointerDelta,pointerDelta)+36.0);
+    target += (pointerNormal*22.0+vec2(-pointerNormal.y,pointerNormal.x)*8.0
+      + clamp(uPointerVel,vec2(-24.0),vec2(24.0))*.5)*pointerFall;
+    float gather = smoothstep(.04,.94,uReveal);
+    base = mix(base,target,gather);
+    // The expanding panel physically pushes any remaining material it reaches.
+    // Reversing the same progress returns each grain to its own original home.
+    vec2 delta = base-uRes*.5;
+    vec2 q = abs(delta)-(extent*.5-vec2(radius));
+    vec2 outside = max(q,vec2(0.0));
+    float distance = length(outside)+min(max(q.x,q.y),0.0)-radius;
+    vec2 normal = length(outside) > .001 ? sign(delta)*normalize(outside)
+      : q.x > q.y ? vec2(sign(delta.x+.001),0.0) : vec2(0.0,sign(delta.y+.001));
+    base += normal*max(0.0,2.0-distance)*smoothstep(0.0,.08,uReveal);
+  }
 
   vec2 v = st.zw;
   float sp = length(v);
   vec2 dir = sp > 0.001 ? v/sp : vec2(1.0,0.0);
   float r = uDot*hm.w*0.5;
-  float len = min(sp*1.25, 18.0)*uStreak;
+  r = mix(r, max(.25,r*(.32+hm.z*.22)),uReveal);
+  r = mix(r,max(.34,r*.58),uMorph*(1.0-uReveal));
+  float len = min(sp*1.15, 13.0)*uStreak*(1.0-uReveal)*(1.0-uMorph*.85);
   vec2 lc = aCorner*vec2(r + len*0.5 + 1.0, r + 1.0);
   vec2 center = base - dir*len*0.5;
   vec2 world = center + dir*lc.x + vec2(-dir.y, dir.x)*lc.y;
@@ -192,9 +335,13 @@ void main(){
   vHalfLen = len*0.5;
   vR = r;
   vec3 col = cl.rgb*uTint;
+  // Retain the sand/silver material in dark mode; the keyed image background
+  // must never tint the displaced grains to the page's near-black colour.
+  col = mix(col, max(col,cl.rgb*.82+vec3(.05,.045,.035)),uDark);
+  col = mix(col, vec3(col.r*.52, col.g*1.02, col.b*1.2), uReply*.78);
   // fast material catches the light, like liquid metal
   float glint = smoothstep(2.0, 16.0, sp);
-  col = mix(col, min(col*1.18 + vec3(0.07,0.075,0.085), vec3(1.0)), glint*0.75);
+  col = mix(col, min(col*1.14 + vec3(0.05,0.055,0.065), vec3(1.0)), glint*0.55);
   vCol = col;
   vA = a;
 }
@@ -212,7 +359,8 @@ out vec4 o;
 void main(){
   vec2 q = vec2(max(abs(vLocal.x)-vHalfLen, 0.0), vLocal.y);
   float d = length(q) - vR;
-  float a = clamp(0.5 - d*uDpr, 0.0, 1.0);
+  float feather = max(.72/uDpr,fwidth(d)*.65);
+  float a = 1.0-smoothstep(-feather,feather,d);
   // comet tail: the trailing end thins out
   float tail = vHalfLen > 0.0 ? clamp(0.5 - vLocal.x/(2.0*(vHalfLen+vR)), 0.0, 1.0) : 0.0;
   a *= 1.0 - tail*0.55;
@@ -243,6 +391,15 @@ uniform float uAmbient;
 uniform float uIntroVis;
 uniform float uRest;
 uniform float uAlphaMode;
+uniform sampler2D uAmbientFlow;
+uniform float uDark;
+uniform float uReply;
+uniform float uReveal;
+uniform vec2 uPointer;
+uniform vec2 uPointerVel;
+uniform float uPointerPresence;
+uniform float uMorph;
+${STATE_MOTION}
 ${NOISE}
 ${ENERGY}
 void main(){
@@ -256,19 +413,36 @@ void main(){
   vec2 toM = rp - uMouse;
   float fall = exp(-dot(toM,toM)/(uRadius*uRadius))*uPresence;
   vec2 disp = -toM*0.22*uStrength*fall - vel*10.0*uStrength;
-  disp += ambientField(uv, uTime)*10.0*uAmbient;
+  disp += texture(uAmbientFlow,uv).xy*18.0*uAmbient;
+  disp += stateMotion(uv,uTime);
+  vec2 pointerDelta = rp-uPointer;
+  float pointerFall = exp(-dot(pointerDelta,pointerDelta)/(uRadius*uRadius*.58))*uPointerPresence;
+  disp -= pointerDelta*.15*pointerFall+uPointerVel*.32*pointerFall;
   vec2 suv = uv + disp/size;
   vec4 tx = texture(uImg, suv);
-  vec3 col = tx.rgb;
+  // Most pixels are empty. Key them before the detail filter, avoiding four
+  // extra texture samples across the clear background on every idle frame.
+  float key = uAlphaMode > 0.5 ? tx.a : smoothstep(mix(.012,.018,uDark), mix(.05,.13,uDark), length(tx.rgb-uImgBg));
+  if(key < 0.001){ o = vec4(0.0); return; }
+  vec2 texel = 1.0/vec2(textureSize(uImg, 0));
+  vec3 around = texture(uImg, suv+vec2(texel.x,0.0)).rgb
+    + texture(uImg, suv-vec2(texel.x,0.0)).rgb
+    + texture(uImg, suv+vec2(0.0,texel.y)).rgb
+    + texture(uImg, suv-vec2(0.0,texel.y)).rgb;
+  vec3 col = clamp(tx.rgb + (tx.rgb*4.0-around)*0.055, 0.0, 1.0);
   vec2 e = smoothstep(vec2(0.0), vec2(0.004,0.01), suv) * smoothstep(vec2(1.0), vec2(0.996,0.99), suv);
   // cut-out images carry their own alpha; flat-background images are keyed by colour
-  float key = uAlphaMode > 0.5 ? tx.a : smoothstep(0.012, 0.05, length(col-uImgBg));
   float k = key*e.x*e.y;
-  float E = energyAt(rp, uMouse, uRadius, uPresence, fl.b);
+  float E = max(energyAt(rp, uMouse, uRadius, uPresence, fl.b),
+    energyAt(rp,uPointer,uRadius*.76,uPointerPresence,0.0));
   float show = (1.0 - max(E, uRest))*uIntroVis;
   vec3 mat = uAlphaMode > 0.5 ? col : col*(uBg/max(uImgBg, vec3(0.001)));
+  // Remove the pale source matte from partially covered edges on a dark page.
+  // Core material and highlights keep their original warm metallic colours.
+  if(uAlphaMode < .5) mat = mix(mat, clamp((col-uImgBg*(1.0-key))/max(key,.06),0.0,1.0), uDark);
+  mat = mix(mat, vec3(mat.r*.52, mat.g*1.02, mat.b*1.2), uReply*.78);
   // premultiplied: empty areas stay transparent so the page (and the backdrop word) shows through
-  float A = k*show;
+  float A = k*show*(1.0-smoothstep(0.0,.55,uReveal))*(1.0-uMorph);
   o = vec4(mat*A, A);
 }
 `
@@ -276,4 +450,4 @@ void main(){
 /* ── helpers ─────────────────────────────────────────────────────────── */
 
 
-export { QUAD_VS, FLOW_FS, SIM_FS, PART_VS, PART_FS, IMAGE_FS };
+export { QUAD_VS, AMBIENT_FS, FLOW_FS, SIM_FS, PART_VS, PART_FS, IMAGE_FS };

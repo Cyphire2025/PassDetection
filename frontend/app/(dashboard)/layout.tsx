@@ -8,7 +8,7 @@ import { RouteCapabilityBoundary } from "@/features/auth/components/route-capabi
 import { DashboardRealtimeAttendanceBridge } from "@/features/operations/components/dashboard-realtime-attendance-bridge";
 import { WhatsAppActivityTrackerProvider } from "@/features/whatsapp/components/whatsapp-activity-tracker";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children, assistant }: { children: React.ReactNode; assistant?: React.ReactNode }) {
   return (
     <>
       <AuthHydrator />
@@ -19,6 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <DashboardShell>{children}</DashboardShell>
           </WhatsAppActivityTrackerProvider>
         </RouteCapabilityBoundary>
+        {assistant}
       </AuthenticatedContent>
     </>
   );

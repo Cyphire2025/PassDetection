@@ -61,6 +61,7 @@
   "/rooming/[groupId]",
   "/session-restore",
   "/settings",
+  "/settings/ai",
   "/staff",
   "/terms",
   "/tour-operations",

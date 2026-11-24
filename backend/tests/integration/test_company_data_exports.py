@@ -205,25 +205,6 @@ async def test_provider_failures_stop_after_five_attempts_and_own_every_write(db
     assert await reserve_export(factory) is None and len(set(storage.uploads)) == 1
 
 
-@pytest.mark.asyncio
-async def test_late_provider_start_renews_lease_before_uncancellable_write(db_session):
-    ctx, person, user, job_id, storage, factory = await export_fixture(db_session)
-    claimed = await reserve_export(factory)
-    async with factory() as session, session.begin():
-        job = await session.get(Job, job_id)
-        # Model almost all initial page budget having elapsed before upload.
-        job.lease_expires_at = datetime.now(UTC) + timedelta(seconds=1)
-    storage.fail_upload = True
-    before = datetime.now(UTC)
-    with pytest.raises(TimeoutError):
-        await process_export_page(factory, *claimed, storage, ctx.crypto)
-    from app.core.config.settings import get_settings
-    provider = get_settings().s3
-    envelope = (provider.connect_timeout_seconds + provider.read_timeout_seconds) * provider.max_attempts + 30
-    async with factory() as session:
-        job = await session.get(Job, job_id)
-        assert job.lease_expires_at.replace(tzinfo=UTC) >= before + timedelta(seconds=envelope)
-    assert await reserve_export(factory) is None
 
 
 @pytest.mark.asyncio

@@ -27,7 +27,7 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1000 }, { name: 
     await expectNoHorizontalOverflow(page);
     await page.screenshot({ path: info.outputPath(`current-contact-${viewport.name}.png`), fullPage: true });
     await submit.click();
-    await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Youâ€™re all set" })).toBeVisible();
     expect(state.completions).toHaveLength(1);
     expect([...state.drafts.values()][0].current_details).toMatchObject({ client_email: "asha@example.test", base_city: "Mumbai" });
     expect(state.contacts.every(request => request.member === state.starts[0])).toBe(true);
@@ -47,7 +47,7 @@ test("failed OTP delivery preserves private details, blocks completion and can b
   expect(state.completionAttempts).toEqual([]);
   state.faults.delivery = false; await verifyFreshContact(page);
   await page.getByRole("button", { name: "Confirm details and submit" }).click();
-  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Youâ€™re all set" })).toBeVisible();
   expect(state.contacts.filter(request => request.kind === "request")).toHaveLength(2);
   expect(state.completions).toHaveLength(1); expectFreshFixtureClean(state);
 });
@@ -70,7 +70,7 @@ test("family contact retry preserves the completed head and only retries the sec
   expect(beforeRetry.fresh.members[0].completed).toBe(true);
   await verifyFreshContact(page, "rahul@example.test");
   await page.getByRole("button", { name: "Confirm details and submit" }).click();
-  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Youâ€™re all set" })).toBeVisible();
   expect(state.completionAttempts.map(request => request.member)).toEqual([state.completions[0], state.completions[1], state.completions[1]]);
   expect(state.completions).toHaveLength(2);
   const requests = state.contacts.filter(request => request.kind === "request");
@@ -93,7 +93,7 @@ test("server-expired contact proof permits re-verification without losing privat
   await expect(page.getByLabel("Base City", { exact: true })).toHaveValue("Mumbai");
   await expect(page.getByLabel("Booking reference", { exact: true })).toHaveValue("PRESERVED-123");
   await verifyFreshContact(page); await page.getByRole("button", { name: "Confirm details and submit" }).click();
-  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Youâ€™re all set" })).toBeVisible();
   expect(state.completions).toEqual([member]); expect(state.completionAttempts).toHaveLength(2);
   // The backend rotates a proof in the same row; successful re-verification need not change its ID.
   expect(state.contacts.filter(request => request.kind === "verify")).toHaveLength(2);

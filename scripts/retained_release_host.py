@@ -15,6 +15,7 @@ from mcp_direct_build import GIB, command
 from mcp_direct_containers import LocalDocker
 from mcp_direct_release import bound_original, wait_for_idle
 from mcp_direct_state import INFRASTRUCTURE, WORKERS, private_json
+from release_assistant_proxy_contract import PROXY_PATH, validate_assistant_proxy
 from release_code_update import COMPATIBILITY_PATHS, task_contract
 from release_manifest import load_release_manifest
 from retained_release_contract import (
@@ -113,8 +114,15 @@ class _RetainedHost:
         allowlist_checked = ROUTE_ALLOWLIST in paths
         if allowlist_checked:
             validate_route_allowlist(self.source)
+        proxy_checked = PROXY_PATH in paths
+        if proxy_checked:
+            validate_assistant_proxy(
+                git("show", f"{previous}:{PROXY_PATH}"),
+                git("show", f"{self.revision}:{PROXY_PATH}"),
+            )
         require(
-            not forbidden_changes(paths, self.mode, route_allowlist_validated=allowlist_checked),
+            not forbidden_changes(paths, self.mode, route_allowlist_validated=allowlist_checked,
+                                  assistant_proxy_validated=proxy_checked),
             "persistent_config_or_build_contract_requires_separate_release",
         )
         contract = load_release_manifest(

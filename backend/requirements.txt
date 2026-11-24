@@ -46,11 +46,8 @@ python-multipart==0.0.32  # file uploads
 
 # ── HTTP Client (for webhooks, cloud APIs) ────────────────────────────────────
 httpx[http2]==0.27.0      # APNs requires HTTP/2
+certifi==2026.10.19      # Removes the compromised emSign trust root from outbound TLS.
 urllib3==2.8.0           # Patched HTTP parsing shared by the storage SDK and audit tooling.
-# Security-sensitive transport/validation transitives stay reproducible on lock regeneration.
-certifi==2026.10.18      # Updated CA trust store.
-dnspython==2.9.1         # Bounded DNS parsing and current resolver security fixes.
-opentelemetry-api==1.45.1 # Bounded tracestate parsing in the SDK dependency graph.
 google-auth==2.56.3       # Application Default Credentials for Play Integrity REST verification
 
 # ── Storage ───────────────────────────────────────────────────────────────────
@@ -64,8 +61,11 @@ pillow-heif==1.6.0
 qrcode==8.2
 numpy==1.26.4
 
-# ── OCR for scanned visa/ticket PDFs (passport extraction uses AI) ────────────
+# ── OCR Engines (pluggable — only what's available will be loaded) ────────────
 pytesseract==0.3.10
+
+# ── MRZ Parsing ───────────────────────────────────────────────────────────────
+passporteye==2.2.1
 
 # ── Excel Export ──────────────────────────────────────────────────────────────
 openpyxl==3.1.4
@@ -75,6 +75,7 @@ pypdf==6.21.2
 pypdfium2==5.12.1
 
 # ── Observability ─────────────────────────────────────────────────────────────
+opentelemetry-api==1.45.1  # Bound and linear-time tracestate parsing used by the MCP SDK.
 structlog==24.2.0
 sentry-sdk[fastapi]==2.66.0
 

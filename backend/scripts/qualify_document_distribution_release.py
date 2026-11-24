@@ -8,11 +8,18 @@ the production release helper never downgrades automatically.
 from __future__ import annotations
 
 import json
+import os
+import shutil
 import subprocess
 import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from sqlalchemy import text
 
 from scripts.document_distribution_release import CHAIN, POLICY, SOURCE, TARGET, migration_entries
@@ -20,15 +27,40 @@ from scripts.document_distribution_release import CHAIN, POLICY, SOURCE, TARGET,
 ROOT = Path(__file__).resolve().parents[1]
 
 
+@contextmanager
+def historical_helper_source() -> Iterator[Path]:
+    """Qualify the frozen helper against its own head, without widening its guard."""
+    config = Config(str(ROOT / "alembic.ini"))
+    config.set_main_option("script_location", str(ROOT / "alembic"))
+    revisions = list(ScriptDirectory.from_config(config).iterate_revisions(TARGET, "base"))
+    with TemporaryDirectory(prefix="document-release-qualification-") as directory:
+        candidate = Path(directory)
+        (candidate / "scripts").mkdir()
+        (candidate / "alembic/versions").mkdir(parents=True)
+        for relative in ("alembic.ini", "alembic/env.py", "alembic/script.py.mako",
+                         "scripts/release_document_distribution_upgrade.py"):
+            shutil.copy2(ROOT / relative, candidate / relative)
+        for revision in revisions:
+            shutil.copy2(revision.path, candidate / "alembic/versions" / Path(revision.path).name)
+        yield candidate
+
+
 def exercise_release_helper(engine: Any, environment: dict[str, str], migrate: Any, message: Any) -> dict[str, object]:
-    contract = {**POLICY, "migrations": migration_entries(ROOT)}
-    bound_env = {**environment, "MCP_RELEASE_PROOF_SHA256": "a" * 64}
+    with historical_helper_source() as candidate:
+        return _exercise_release_helper(engine, environment, migrate, message, candidate)
+
+
+def _exercise_release_helper(engine: Any, environment: dict[str, str], migrate: Any, message: Any,
+                             candidate: Path) -> dict[str, object]:
+    contract = {**POLICY, "migrations": migration_entries(candidate)}
+    bound_env = {**environment, "MCP_RELEASE_PROOF_SHA256": "a" * 64,
+                 "PYTHONPATH": os.pathsep.join(filter(None, (str(ROOT), environment.get("PYTHONPATH"))))}
 
     def invoke(*, capture=False, success=True, extra_env=None):
         args = [sys.executable, "scripts/release_document_distribution_upgrade.py", "--contract-json", json.dumps(contract)]
         if capture:
             args.append("--capture-baseline")
-        result = subprocess.run(args, cwd=ROOT, env={**bound_env, **(extra_env or {})},
+        result = subprocess.run(args, cwd=candidate, env={**bound_env, **(extra_env or {})},
             text=True, capture_output=True, timeout=240)
         output = json.loads(result.stdout.strip())
         if success:

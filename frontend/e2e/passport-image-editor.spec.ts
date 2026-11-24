@@ -138,6 +138,7 @@ async function installEditorFixture(
       });
     }
     if (pathname === "/api/v1/auth/me") return json(route, admin);
+    if (pathname === "/api/v1/ai-assistant/availability") return json(route, { enabled: false, allowed: false });
     if (pathname === "/api/v1/notifications/feed") return json(route, {
       items: [], unread_count: 0, next_cursor: null,
     });

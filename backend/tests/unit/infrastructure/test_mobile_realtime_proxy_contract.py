@@ -87,11 +87,15 @@ def test_asgi_transport_bounds_frames_before_application_validation() -> None:
     worker = (_REPOSITORY_ROOT / "backend/app/infrastructure/bounded_uvicorn_worker.py").read_text(
         encoding="utf-8"
     )
+    transport = (_REPOSITORY_ROOT / "backend/app/infrastructure/bounded_websocket_protocol.py").read_text(
+        encoding="utf-8"
+    )
     assert "--ws-max-size 1024" in compose
     assert "--ws-max-queue 4" in compose
     assert "--ws-per-message-deflate false" in compose
     assert '"--config", "gunicorn.conf.py"' in dockerfile
     assert "app.infrastructure.bounded_uvicorn_worker.BoundedUvicornWorker" in gunicorn_config
-    assert '"ws_max_size": 1_024' in worker
-    assert '"ws_max_queue": 4' in worker
-    assert '"ws_per_message_deflate": False' in worker
+    assert "**BOUNDED_WEBSOCKET_OPTIONS" in worker
+    assert '"ws_max_size": 1_024' in transport
+    assert '"ws_max_queue": 4' in transport
+    assert '"ws_per_message_deflate": False' in transport

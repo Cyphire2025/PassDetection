@@ -5,6 +5,8 @@
 import type { NextConfig } from "next";
 import { resolveApiRewriteBase } from "./config/api-routing";
 import { VISA_FACE_DETECTION_ASSET_VERSION } from "./config/visa-face-detection-assets";
+import particleAssets from "./public/ai/human-head/particles-v1.json";
+import landscapeAssets from "./public/ai/test-landscape/compact-v1.json";
 
 const PRIVATE_DYNAMIC_CACHE_CONTROL = "private, no-store, max-age=0, must-revalidate";
 const PUBLIC_REVALIDATED_CACHE_CONTROL = "public, max-age=0, must-revalidate";
@@ -101,6 +103,15 @@ const nextConfig: NextConfig = {
           value: PUBLIC_REVALIDATED_CACHE_CONTROL,
         }],
       })),
+      // Only these public, content-addressed scene files are immutable. Account
+      // pages, APIs and all other assets retain their existing cache policy.
+      ...[
+        ...Object.values(particleAssets.assets).map(({ file }) => `/ai/human-head/${file}`),
+        ...Object.values(landscapeAssets).map(({ file }) => `/ai/test-landscape/${file}`),
+      ].map((source) => ({ source, headers: [
+        { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ...(source.endsWith(".bin.gz") ? [{ key: "Content-Encoding", value: "gzip" }, { key: "Content-Type", value: "application/octet-stream" }] : []),
+      ] })),
       {
         source: "/mediapipe/face_detection/:path*",
         has: [{ type: "query", key: "v", value: VISA_FACE_DETECTION_ASSET_VERSION }],

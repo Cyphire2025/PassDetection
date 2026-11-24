@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "count": 43264,
+  "attributes": [
+    "position",
+    "normal",
+    "jawShape",
+    "roundShape",
+    "wideShape",
+    "closureShape",
+    "fricativeShape",
+    "blinkShape",
+    "eyeRegion",
+    "surfaceDetail"
+  ],
+  "assets": {
+    "female": {
+      "file": "particles-female-06a6b93fd8ff.bin.gz",
+      "bytes": 591967,
+      "sha256": "06a6b93fd8ff311d2cd64bf2dbe8dd4a9dff0c490a263d2b8793bd73c80d0f4f"
+    },
+    "male": {
+      "file": "particles-male-6804134766f3.bin.gz",
+      "bytes": 594020,
+      "sha256": "6804134766f3b97241cd7f6aeb5a588e83a892067b5d920edea3e9218687ccbb"
+    }
+  }
+}

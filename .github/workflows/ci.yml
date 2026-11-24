@@ -430,7 +430,7 @@ jobs:
     needs: plan
     if: ${{ needs.plan.outputs['backend-service-integration'] == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     permissions:
       contents: read
 
@@ -479,6 +479,7 @@ jobs:
       FCM_TEST_KEEP_SCHEMA: "1"
       REALTIME_TEST_REDIS_URL: redis://gc-realtime-startup-test-ci:6379/15
       CI_FRONTEND_ERROR_REDIS_URL: redis://localhost:6379/14
+      ASSISTANT_TEST_REDIS_URL: redis://localhost:6379/13
       REDIS_HOST: localhost
       REDIS_PORT: 6379
       REDIS_PASSWORD: ""
@@ -909,7 +910,17 @@ jobs:
         run: npm ci
 
       - name: Install the reviewed Chromium and WebKit runtimes
-        run: npx playwright install --with-deps chromium webkit
+        timeout-minutes: 10
+        run: |
+          # Azure's Ubuntu mirror stalled twice; prefer the runner's canonical HTTPS mirrors.
+          mirror_list=/etc/apt/apt-mirrors.txt
+          grep -Eq '^https://archive\.ubuntu\.com/ubuntu/[[:space:]]' "$mirror_list"
+          grep -Eq '^https://security\.ubuntu\.com/ubuntu/[[:space:]]' "$mirror_list"
+          mirror_backup="$RUNNER_TEMP/browser-apt-mirrors.txt"
+          cp "$mirror_list" "$mirror_backup"
+          trap 'sudo cp "$mirror_backup" "$mirror_list"' EXIT
+          sudo sed -i '\|^http://azure\.archive\.ubuntu\.com/ubuntu/[[:space:]]|d' "$mirror_list"
+          npx playwright install --with-deps chromium webkit
 
       - name: Verify synthetic camera lifecycle before expensive image builds
         run: npx playwright test --config=playwright.fixtures.config.ts
@@ -1088,11 +1099,20 @@ jobs:
           python scripts/qa/run_qualification_stack.py start
 
       - name: Qualify real TLS cookies, MFA, CSRF and sessions in three engines
+        timeout-minutes: 15
         working-directory: frontend
         env:
           RUN_REAL_STACK: "1"
         run: |
           npm ci
+          # Use the same canonical mirrors as the browser-journey installation.
+          mirror_list=/etc/apt/apt-mirrors.txt
+          grep -Eq '^https://archive\.ubuntu\.com/ubuntu/[[:space:]]' "$mirror_list"
+          grep -Eq '^https://security\.ubuntu\.com/ubuntu/[[:space:]]' "$mirror_list"
+          mirror_backup="$RUNNER_TEMP/real-stack-apt-mirrors.txt"
+          cp "$mirror_list" "$mirror_backup"
+          trap 'sudo cp "$mirror_backup" "$mirror_list"' EXIT
+          sudo sed -i '\|^http://azure\.archive\.ubuntu\.com/ubuntu/[[:space:]]|d' "$mirror_list"
           npx playwright install --with-deps chromium firefox webkit
           npx playwright test --config=playwright.real-stack.config.ts
 
