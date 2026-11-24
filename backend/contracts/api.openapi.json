@@ -14782,13 +14782,27 @@
             "type": "boolean"
           },
           "client_organization_id": {
-            "format": "uuid",
-            "title": "Client Organization Id",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Organization Id"
           },
           "client_organization_name": {
-            "title": "Client Organization Name",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Organization Name"
           },
           "common_document_version": {
             "title": "Common Document Version",
